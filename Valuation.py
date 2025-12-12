@@ -771,7 +771,7 @@ with tab1:
         "Número de años para proyectar el Margen EBIT", 
         min_value=1, 
         max_value=20, 
-        value=5,
+        value=10,
         step=1
         )
         
@@ -883,7 +883,6 @@ with tab2:
     fcf_projections = []
     years = [i+1 for i in range(num_years_financial_core)]
 
-    st.write(revenue_growth_rates)
     #revenue_growth_rates = [revenue_growth_1, revenue_growth_2, revenue_growth_3, revenue_growth_4, revenue_growth_5]
     #ebitda_margins = #[ebitda_margin_1, ebitda_margin_2, ebitda_margin_3, ebitda_margin_4, ebitda_margin_5]
     
@@ -894,7 +893,6 @@ with tab2:
         else:
             revenue = revenue_projections[i-1] * (1 + growth_rate)
 
-        st.write(revenue)
         ebitda = revenue * margin
         depreciation = revenue * depreciation_revenue_ratio
         ebit = ebitda - depreciation
