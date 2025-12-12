@@ -1674,5 +1674,5 @@ if run_monte_carlo and simulation_results:
 #        ]
 #    })
     
-    st.dataframe(risk_factors, use_container_width=True, hide_index=True)
+#    st.dataframe(risk_factors, use_container_width=True, hide_index=True)
     
