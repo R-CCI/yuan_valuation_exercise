@@ -788,14 +788,14 @@ with tab1:
             avg_rev_growth = np.log(1+income.loc['Total Revenue'].sort_index().pct_change(fill_method=None)).mean()
             st.write(f'Promedio de Crecimiento de los Ingresos (últimos 3 años): {avg_rev_growth*100:.2f}%')
             if revenue_opton == 'Fijo':
-                revenue_growth = st.number_input(
+                revenue_growth_base = st.number_input(
                     "Crecimiento de los Ingresos Esperados (%)", 
                     min_value=-50.0, 
                     max_value=100.0, 
                     value=industry_data.get("typical_growth_high", 15.0), 
                     step=0.1
                 ) / 100
-                revenue_growth_rates = [ebit_margin_base] * int(num_years_financial_core)
+                revenue_growth_rates = [revenue_growth_base] * int(num_years_financial_core)
             else:
                 for year in range(1, int(num_years_financial_core) + 1):
                     default_growth_factor = 1 + (year - 1) * -0.05  # 2.5% yearly increase just like your pattern
