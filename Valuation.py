@@ -1552,7 +1552,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
         
         # Create more spread out variations for better visualization
         wacc_min, wacc_max = wacc * 0.7, wacc * 1.3
-        terminal_min, terminal_max = max(terminal_growth_rate * 0.3, 0.005), min(terminal_growth_rate * 2.5, 0.05)
+        terminal_min, terminal_max =  terminal_growth_rate * 0.7, terminal_growth_rate * 1.3
         
         # Use uniform distribution for better spread
         wacc_scatter = np.random.uniform(wacc_min, wacc_max, sample_size)
