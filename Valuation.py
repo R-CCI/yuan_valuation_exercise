@@ -961,7 +961,7 @@ with tab2:
     pv_tv = ((fcf_projections[-1]*(1+tgr))/(wacc-tgr))/((1+wacc)**5)
     ev_base = sum(pv_fcf) + pv_tv
 
-    equity_value = ev_base - debt_long
+    equity_value = ev_base - debt_long + cash
     value_per_share = equity_value / sharesOutstanding
     st.write(f'Valor por Acción: {value_per_share:,.2f}')
     
@@ -969,12 +969,12 @@ with tab2:
     st.markdown("#### 📊 5-Year Financial Projections")
     
     projections_df = pd.DataFrame({
-        'Year': years,
-        f'Revenue ({currency_symbol}M)': [f"{rev:,.1f}" for rev in revenue_projections],
+        'Año': years,
+        f'Ingresos ({currency_symbol}M)': [f"{rev:,.1f}" for rev in revenue_projections],
         f'EBITDA ({currency_symbol}M)': [f"{ebitda:,.1f}" for ebitda in ebitda_projections],
-        'EBITDA Margin (%)': [f"{margin*100:,.1f}%" for margin in ebitda_margins],
-        f'Free Cash Flow ({currency_symbol}M)': [f"{fcf:,.1f}" for fcf in fcf_projections],
-        'Revenue Growth (%)': [f"{growth*100:,.1f}%" for growth in revenue_growth_rates]
+        'Margen EBITDA (%)': [f"{margin*100:,.1f}%" for margin in ebitda_margins],
+        f'Flujo de Caja Libre ({currency_symbol}M)': [f"{fcf:,.1f}" for fcf in fcf_projections],
+        'Crecimiento de los Ingresos (%)': [f"{growth*100:,.1f}%" for growth in revenue_growth_rates]
     })
     
     st.dataframe(projections_df, use_container_width=True)
@@ -986,7 +986,7 @@ with tab2:
         x=years, 
         y=revenue_projections,
         mode='lines+markers',
-        name='Revenue',
+        name='Ingresos',
         line=dict(color='#667eea', width=3),
         marker=dict(size=8)
     ))
@@ -1003,7 +1003,7 @@ with tab2:
     fig_cf.add_trace(go.Bar(
         x=years,
         y=fcf_projections,
-        name='Free Cash Flow',
+        name='Flujo de Caja Libre',
         marker_color='rgba(255, 107, 107, 0.7)',
         yaxis='y'
     ))
@@ -1011,7 +1011,7 @@ with tab2:
     fig_cf.update_layout(
         title="Evolución Financiera",
         xaxis_title="Projection Period",
-        yaxis_title=f"Amount ({currency_symbol} Millions)",
+        yaxis_title=f"Monto",
         template="plotly_white",
         height=500,
         hovermode='x unified',
@@ -1068,7 +1068,7 @@ with tab3:
     
     # Enterprise and equity value
     enterprise_value = sum(pv_fcf) + pv_terminal_value
-    equity_value = enterprise_value - net_debt
+    equity_value = enterprise_value - debt_long + cash
     value_per_share = equity_value / shares_outstanding
     
     # Monte Carlo simulation (if enabled)
@@ -1131,7 +1131,7 @@ with tab3:
                 sim_pv_terminal_value = sim_terminal_value / sim_discount_factors[-1]
                 
                 sim_enterprise_value = sum(sim_pv_fcf) + sim_pv_terminal_value
-                sim_equity_value = sim_enterprise_value - net_debt
+                sim_equity_value = sim_enterprise_value - debt_long + cash
                 sim_value_per_share = sim_equity_value / shares_outstanding
                 
                 simulation_results.append(sim_value_per_share)
@@ -1267,7 +1267,7 @@ with tab3:
                 sens_terminal_value = sens_terminal_fcf / (w - tg)
                 sens_pv_terminal_value = sens_terminal_value / ((1 + w) ** 5)
                 sens_enterprise_value = sum([fcf / ((1 + w) ** i) for i, fcf in enumerate(fcf_projections, 1)]) + sens_pv_terminal_value
-                sens_equity_value = sens_enterprise_value - net_debt
+                sens_equity_value = sens_enterprise_value - debt_long + cash
                 sens_value_per_share = sens_equity_value / shares_outstanding
                 row.append(sens_value_per_share)
             else:
@@ -1752,7 +1752,7 @@ try:
                 surface_values[i, j] = 0
 
     # Clean and smooth the data
-    surface_values = np.nan_to_num(surface_values, nan=0.0, posinf=0.0, neginf=0.0)
+    #surface_values = np.nan_to_num(surface_values, nan=0.0, posinf=0.0, neginf=0.0)
 
     # Create the stunning 3D plot
     fig = go.Figure()
