@@ -1055,7 +1055,7 @@ with tab3:
         for i in range(num_simulations):
             # Get random values for this simulation
             sim_wacc = max(0.05, min(0.25, wacc_dist[i])) # Constrain WACC between 5-25%
-            sim_terminal_growth = max(0.0, min(0.05, terminal_growth_dist[i])) # Constrain terminal growth 0-5%
+            sim_terminal_growth = max(0.0, min(0.18, terminal_growth_dist[i])) # Constrain terminal growth 0-5%
             
             # Calculate FCF projections for this simulation
             sim_fcf = []
