@@ -1004,17 +1004,16 @@ def dcf(w, tg):
 
 
 with tab3:
-    st.markdown("#### 🎯 DCF Valuation Analysis")
+    st.markdown("#### Analisis Valoracion")
     # Additional valuation inputs
-    col1, col2 = st.columns(2)
-    with col1:
-        shares_outstanding = sharesOutstanding
-        net_debt = debt_long
-    with col2:
-        # Monte Carlo simulation parameters
-        st.markdown("##### Monte Carlo Analysis")
-        
-        num_simulations = st.slider("Number of Simulations", 1000, 10000, 5000, step=1000) if run_monte_carlo else 1000
+
+    shares_outstanding = sharesOutstanding
+    net_debt = debt_long
+
+    # Monte Carlo simulation parameters
+    st.markdown("##### Monte Carlo Analysis")
+    
+    num_simulations = st.slider("Cantidad de Simulaciones", 1000, 10000, 5000, step=1000) if run_monte_carlo else 1000
     
     # DCF Calculation
     discount_factors = [(1 + wacc) ** i for i in range(1, num_years_financial_core+1)]
