@@ -962,8 +962,7 @@ with tab2:
     pv_fcf = [fcf_projections[i]/(1+wacc)**(i+1) for  i in range(5)]
     pv_tv = ((fcf_projections[-1]*(1+tgr))/(wacc-tgr))/((1+wacc)**5)
     ev_base = sum(pv_fcf) + pv_tv
-    st.write(f'Valor Presente de los Flujos: {sum(pv_fcf):,.2f}')
-    st.write(f'Valor Presente del Valor Terminal: {pv_tv:,.2f}')
+
     equity_value = ev_base - debt_long
     value_per_share = equity_value / sharesOutstanding
     st.write(f'Valor por Acción: {value_per_share:,.2f}')
@@ -1012,7 +1011,7 @@ with tab2:
     ))
     
     fig_cf.update_layout(
-        title="Financial Projections Overview",
+        title="Evolución Financiera",
         xaxis_title="Projection Period",
         yaxis_title=f"Amount ({currency_symbol} Millions)",
         template="plotly_white",
@@ -1022,6 +1021,26 @@ with tab2:
     )
     
     st.plotly_chart(fig_cf, use_container_width=True)
+    
+    vp_flujos = sum(pv_fcf)
+    vp_terminal = pv_tv
+    
+    data = {
+        "Componentes": ["Valor Presente de los Flujos", "Valor Presente del Valor Terminal"],
+        "Valor": [vp_flujos, vp_terminal]
+    }
+    
+    # Create Pie Chart
+    fig = px.pie(
+        data,
+        names="Componentes",
+        values="Valor",
+        title="Composición del Valor Presente Total",
+        hole=0.3  # optional: makes it a donut chart
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+
 
 with tab3:
     st.markdown("#### 🎯 DCF Valuation Analysis")
