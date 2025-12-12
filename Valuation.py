@@ -932,7 +932,7 @@ with tab2:
     revenue_projections = []
     ebitda_projections = []
     fcf_projections = []
-    years = ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5"]
+    years = ["Año 1", "Año 2", "Año 3", "Año 4", "Año 5"]
     
     revenue_growth_rates = [revenue_growth_1, revenue_growth_2, revenue_growth_3, revenue_growth_4, revenue_growth_5]
     ebitda_margins = [ebitda_margin_1, ebitda_margin_2, ebitda_margin_3, ebitda_margin_4, ebitda_margin_5]
