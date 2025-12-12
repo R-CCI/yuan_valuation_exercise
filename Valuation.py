@@ -795,7 +795,7 @@ with tab1:
                     value=industry_data.get("typical_growth_high", 15.0), 
                     step=0.1
                 ) / 100
-                revenue_growth_rates = [ebit_margin_base] * int(num_years)
+                revenue_growth_rates = [ebit_margin_base] * int(num_years_financial_core)
             else:
                 for year in range(1, int(num_years_financial_core) + 1):
                     default_growth_factor = 1 + (year - 1) * -0.05  # 2.5% yearly increase just like your pattern
@@ -824,7 +824,7 @@ with tab1:
                     value=50.0, #industry_data.get("ebitda_margin", 20.0), 
                     step=0.1
                 ) / 100
-                margenes_ebit = [ebit_margin_base] * int(num_years)
+                margenes_ebit = [ebit_margin_base] * int(num_years_financial_core)
             else:
                 for year in range(1, int(num_years_financial_core) + 1):
                     default_growth_factor = 1 + (year - 1) * 0.025  # 2.5% yearly increase just like your pattern
