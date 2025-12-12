@@ -767,8 +767,17 @@ with tab1:
     
     with col1:
         st.markdown("#### Información y Proyecciones")
+        num_years_financial_core = st.number_input(
+        "Número de años para proyectar el Margen EBIT", 
+        min_value=1, 
+        max_value=20, 
+        value=5,
+        step=1
+        )
         
-        # Get industry defaults
+        revenue_growth_rates = []
+        ebitda_margins = []
+        
         industry_data = INDUSTRY_BENCHMARKS[industry] if use_industry_defaults else {}
         
         st.write(f'Ingresos Actuales: {current_revenue:,.2f}')
@@ -786,47 +795,19 @@ with tab1:
                     value=industry_data.get("typical_growth_high", 15.0), 
                     step=0.1
                 ) / 100
-                revenue_growth_1 = revenue_growth
-                revenue_growth_2 = revenue_growth
-                revenue_growth_3 = revenue_growth
-                revenue_growth_4 = revenue_growth
-                revenue_growth_5 = revenue_growth 
+                revenue_growth_rates = [ebit_margin_base] * int(num_years)
             else:
-                revenue_growth_1 = st.number_input(
-                    "Crecimiento de los Ingresos Año 1 (%)", 
-                    min_value=-50.0, 
-                    max_value=100.0, 
-                    value=25.0, 
+                for year in range(1, int(num_years) + 1):
+                    default_growth_factor = 1 + (year - 1) * -0.05  # 2.5% yearly increase just like your pattern
+                    revenue_growth_i = st.number_input(
+                    f"Margen EBIT Año {year} (%)",
+                    min_value=-20.0,
+                    max_value=60.0,
+                    value=50 * default_growth_factor,
                     step=0.1
-                ) / 100
-                revenue_growth_2 = st.number_input(
-                    "Crecimiento de los Ingresos Año 2 (%)", 
-                    min_value=-50.0, 
-                    max_value=100.0, 
-                    value=20.0, 
-                    step=0.1
-                ) / 100
-                revenue_growth_3 = st.number_input(
-                    "Crecimiento de los Ingresos Año 3 (%)", 
-                    min_value=-50.0, 
-                    max_value=100.0, 
-                    value=15.0, 
-                    step=0.1
-                ) / 100
-                revenue_growth_4 = st.number_input(
-                    "Crecimiento de los Ingresos Año 4 (%)", 
-                    min_value=-50.0, 
-                    max_value=100.0, 
-                    value=10.0, 
-                    step=0.1
-                ) / 100
-                revenue_growth_5 = st.number_input(
-                    "Crecimiento de los Ingresos Año 5 (%)", 
-                    min_value=-50.0, 
-                    max_value=100.0, 
-                    value=5.0, 
-                    step=0.1
-                ) / 100
+                    ) / 100
+        
+                    revenue_growth_rates.append(revenue_growth_i)
             
         with col_margin:
             revenues = income.loc["Total Revenue"].sort_index()
@@ -840,53 +821,22 @@ with tab1:
                     "Margen EBIT (%)", 
                     min_value=-50.0, 
                     max_value=100.0, 
-                    value=industry_data.get("ebitda_margin", 20.0), 
+                    value=50.0, #industry_data.get("ebitda_margin", 20.0), 
                     step=0.1
                 ) / 100
-                ebitda_margin_1 = ebit_margin_base
-                ebitda_margin_2 = ebit_margin_base
-                ebitda_margin_3 = ebit_margin_base
-                ebitda_margin_4 = ebit_margin_base
-                ebitda_margin_5 = ebit_margin_base
+                margenes_ebit = [ebit_margin_base] * int(num_years)
             else:
-                ebitda_margin_1 = st.number_input(
-                    "Margen EBIT Año 1 (%)", 
-                    min_value=-20.0, 
-                    max_value=60.0, 
-                    value=industry_data.get("ebitda_margin", 20.0), 
+                for year in range(1, int(num_years) + 1):
+                    default_growth_factor = 1 + (year - 1) * 0.025  # 2.5% yearly increase just like your pattern
+                    margen = st.number_input(
+                    f"Margen EBIT Año {year} (%)",
+                    min_value=-20.0,
+                    max_value=60.0,
+                    value=50.00 * default_growth_factor,
                     step=0.1
-                ) / 100
-                
-                ebitda_margin_2 = st.number_input(
-                    "Margen EBIT Año 2 (%)", 
-                    min_value=-20.0, 
-                    max_value=60.0, 
-                    value=industry_data.get("ebitda_margin", 20.0) * 1.025, 
-                    step=0.1
-                ) / 100
-                
-                ebitda_margin_3 = st.number_input(
-                    "Margen EBIT Año 3 (%)", 
-                    min_value=-20.0, 
-                    max_value=60.0, 
-                    value=industry_data.get("ebitda_margin", 20.0) * 1.05, 
-                    step=0.1
-                ) / 100
-                
-                ebitda_margin_4 = st.number_input(
-                    "Margen EBIT Año 4 (%)", 
-                    min_value=-20.0, 
-                    max_value=60.0, 
-                    value=industry_data.get("ebitda_margin", 20.0) * 1.08, 
-                    step=0.1
-                ) / 100
-                ebitda_margin_5 = st.number_input(
-                    "Margen EBIT Año 5 (%)", 
-                    min_value=-20.0, 
-                    max_value=60.0, 
-                    value=industry_data.get("ebitda_margin", 20.0) * 1.1, 
-                    step=0.1
-                ) / 100
+                    ) / 100
+        
+                    margenes_ebit.append(margen)
 
     with col2:
         st.markdown("#### Supuestos")
@@ -932,10 +882,10 @@ with tab2:
     revenue_projections = []
     ebitda_projections = []
     fcf_projections = []
-    years = ["Año 1", "Año 2", "Año 3", "Año 4", "Año 5"]
+    years = [1, 2, 3, 4, 5]
     
-    revenue_growth_rates = [revenue_growth_1, revenue_growth_2, revenue_growth_3, revenue_growth_4, revenue_growth_5]
-    ebitda_margins = [ebitda_margin_1, ebitda_margin_2, ebitda_margin_3, ebitda_margin_4, ebitda_margin_5]
+    #revenue_growth_rates = [revenue_growth_1, revenue_growth_2, revenue_growth_3, revenue_growth_4, revenue_growth_5]
+    #ebitda_margins = [ebitda_margin_1, ebitda_margin_2, ebitda_margin_3, ebitda_margin_4, ebitda_margin_5]
     
     # Build financial projections
     for i, (growth_rate, margin) in enumerate(zip(revenue_growth_rates, ebitda_margins)):
