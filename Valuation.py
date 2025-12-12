@@ -837,7 +837,8 @@ with tab1:
                     ) / 100
         
                     margenes_ebit.append(margen)
-
+    st.write(margenes_ebit)
+    st.write(revenue_growth_rates)
     with col2:
         st.markdown("#### Supuestos")
         capex = balance.loc["Net PPE"].sort_index().sort_index().diff()
@@ -921,10 +922,10 @@ with tab2:
     
     projections_df = pd.DataFrame({
         'Año': years,
-        f'Ingresos ({currency_symbol}M)': [f"{rev:,.1f}" for rev in revenue_projections],
-        f'EBITDA ({currency_symbol}M)': [f"{ebitda:,.1f}" for ebitda in ebitda_projections],
+        f'Ingresos ({currency_symbol})': [f"{rev:,.1f}" for rev in revenue_projections],
+        f'EBITDA ({currency_symbol})': [f"{ebitda:,.1f}" for ebitda in ebitda_projections],
         'Margen EBITDA (%)': [f"{margin*100:,.1f}%" for margin in ebitda_margins],
-        f'Flujo de Caja Libre ({currency_symbol}M)': [f"{fcf:,.1f}" for fcf in fcf_projections],
+        f'Flujo de Caja Libre ({currency_symbol})': [f"{fcf:,.1f}" for fcf in fcf_projections],
         'Crecimiento de los Ingresos (%)': [f"{growth*100:,.1f}%" for growth in revenue_growth_rates]
     })
     
