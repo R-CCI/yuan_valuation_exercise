@@ -913,7 +913,7 @@ with tab2:
     ev_base = sum(pv_fcf) + pv_tv
 
     equity_value = ev_base - debt_long + cash
-    value_per_share = equity_value / sharesOutstanding
+    value_per_share_base = equity_value / sharesOutstanding
     st.write(f'Valor por Acción: {value_per_share:,.2f}')
     
     # Display financial projections table
@@ -1592,7 +1592,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
             fig_3d_scatter.add_trace(go.Scatter3d(
                 x=[wacc * 100],
                 y=[terminal_growth_rate * 100],
-                z=[value_per_share],
+                z=[value_per_share_base],
                 mode='markers',
                 marker=dict(
                     size=18,  # Larger size
