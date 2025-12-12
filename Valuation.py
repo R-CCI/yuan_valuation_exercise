@@ -1540,191 +1540,189 @@ with tab4:
     st.plotly_chart(fig_bridge, use_container_width=True)
     
 
-# Interactive 3D DCF Visualization
-with st.expander("🎯 Interactive 3D DCF Model Visualization", expanded=True):
-    st.markdown("### 🌐 Interactive 3D Valuation Explorer")
-    
-    # Create 3D scatter plot for Monte Carlo results
-    if run_monte_carlo and simulation_results and len(simulation_results) > 100:
-        try:
-            # Sample points for visualization with better distribution
-            sample_size = min(500, len(simulation_results))
-            sample_indices = np.random.choice(len(simulation_results), sample_size, replace=False)
-            sample_values = [simulation_results[i] for i in sample_indices]
+st.markdown("### 🌐 Análisis Sensibilidad del Valor de la Acción")
+
+# Create 3D scatter plot for Monte Carlo results
+if run_monte_carlo and simulation_results and len(simulation_results) > 100:
+    try:
+        # Sample points for visualization with better distribution
+        sample_size = min(500, len(simulation_results))
+        sample_indices = np.random.choice(len(simulation_results), sample_size, replace=False)
+        sample_values = [simulation_results[i] for i in sample_indices]
+        
+        # Create more spread out variations for better visualization
+        wacc_min, wacc_max = wacc * 0.7, wacc * 1.3
+        terminal_min, terminal_max = max(terminal_growth_rate * 0.3, 0.005), min(terminal_growth_rate * 2.5, 0.05)
+        
+        # Use uniform distribution for better spread
+        wacc_scatter = np.random.uniform(wacc_min, wacc_max, sample_size)
+        terminal_scatter = np.random.uniform(terminal_min, terminal_max, sample_size)
+        
+        # Filter out invalid combinations (WACC <= Terminal Growth)
+        valid_indices = wacc_scatter > terminal_scatter
+        wacc_scatter = wacc_scatter[valid_indices]
+        terminal_scatter = terminal_scatter[valid_indices]
+        sample_values = [sample_values[i] for i, valid in enumerate(valid_indices) if valid]
+        
+        # Ensure we have valid data
+        if len(sample_values) > 0 and len(wacc_scatter) > 0:
+            # Create size variation based on probability density
+            marker_sizes = []
+            for v in sample_values:
+                if abs(v - np.median(simulation_results)) < np.std(simulation_results) * 0.5:
+                    marker_sizes.append(8)  # Larger for values near median
+                elif abs(v - np.median(simulation_results)) < np.std(simulation_results):
+                    marker_sizes.append(6)  # Medium size
+                else:
+                    marker_sizes.append(4)  # Smaller for outliers
             
-            # Create more spread out variations for better visualization
-            wacc_min, wacc_max = wacc * 0.7, wacc * 1.3
-            terminal_min, terminal_max = max(terminal_growth_rate * 0.3, 0.005), min(terminal_growth_rate * 2.5, 0.05)
+            # Ensure all arrays have the same length
+            min_length = min(len(wacc_scatter), len(terminal_scatter), len(sample_values), len(marker_sizes))
+            wacc_scatter = wacc_scatter[:min_length]
+            terminal_scatter = terminal_scatter[:min_length]
+            sample_values = sample_values[:min_length]
+            marker_sizes = marker_sizes[:min_length]
             
-            # Use uniform distribution for better spread
-            wacc_scatter = np.random.uniform(wacc_min, wacc_max, sample_size)
-            terminal_scatter = np.random.uniform(terminal_min, terminal_max, sample_size)
-            
-            # Filter out invalid combinations (WACC <= Terminal Growth)
-            valid_indices = wacc_scatter > terminal_scatter
-            wacc_scatter = wacc_scatter[valid_indices]
-            terminal_scatter = terminal_scatter[valid_indices]
-            sample_values = [sample_values[i] for i, valid in enumerate(valid_indices) if valid]
-            
-            # Ensure we have valid data
-            if len(sample_values) > 0 and len(wacc_scatter) > 0:
-                # Create size variation based on probability density
-                marker_sizes = []
-                for v in sample_values:
-                    if abs(v - np.median(simulation_results)) < np.std(simulation_results) * 0.5:
-                        marker_sizes.append(8)  # Larger for values near median
-                    elif abs(v - np.median(simulation_results)) < np.std(simulation_results):
-                        marker_sizes.append(6)  # Medium size
-                    else:
-                        marker_sizes.append(4)  # Smaller for outliers
-                
-                # Ensure all arrays have the same length
-                min_length = min(len(wacc_scatter), len(terminal_scatter), len(sample_values), len(marker_sizes))
-                wacc_scatter = wacc_scatter[:min_length]
-                terminal_scatter = terminal_scatter[:min_length]
-                sample_values = sample_values[:min_length]
-                marker_sizes = marker_sizes[:min_length]
-                
-                fig_3d_scatter = go.Figure(data=[go.Scatter3d(
-                    x=wacc_scatter * 100,
-                    y=terminal_scatter * 100,
-                    z=sample_values,
-                    mode='markers',
-                    marker=dict(
-                        size=marker_sizes,
-                        color=sample_values,
-                        colorscale='deep',  # Changed to deeper, more vibrant blues
-                        opacity=0.8,  # Increased opacity for richer colors
-                        showscale=True,
-                        colorbar=dict(
-                            title=dict(
-                                text=f"Value per Share<br>({currency_symbol})",
-                                font=dict(size=14, color='white')
-                            ),
-                            thickness=15,
-                            len=0.6,
-                            bgcolor='rgba(0,0,0,0.8)',  # Darker colorbar background
-                            bordercolor='white',
-                            borderwidth=1,
-                            tickfont=dict(color='white', size=11)
+            fig_3d_scatter = go.Figure(data=[go.Scatter3d(
+                x=wacc_scatter * 100,
+                y=terminal_scatter * 100,
+                z=sample_values,
+                mode='markers',
+                marker=dict(
+                    size=marker_sizes,
+                    color=sample_values,
+                    colorscale='deep',  # Changed to deeper, more vibrant blues
+                    opacity=0.8,  # Increased opacity for richer colors
+                    showscale=True,
+                    colorbar=dict(
+                        title=dict(
+                            text=f"Value per Share<br>({currency_symbol})",
+                            font=dict(size=14, color='white')
                         ),
-                        line=dict(color='rgba(255,255,255,0.3)', width=0.5)  # Subtle white outline
-                    ),
-                    text=[f'WACC: {w*100:.2f}%<br>Terminal Growth: {tg*100:.2f}%<br>Value: {format_currency(v, currency_symbol)}' 
-                          for w, tg, v in zip(wacc_scatter, terminal_scatter, sample_values)],
-                    name='Monte Carlo Results',
-                    hovertemplate='<b>Monte Carlo Scenario</b><br>%{text}<extra></extra>'
-                )])
-                
-                # Add current market price reference plane with enhanced blue
-                wacc_range_viz = np.linspace(wacc_min * 100, wacc_max * 100, 10)
-                terminal_range_viz = np.linspace(terminal_min * 100, terminal_max * 100, 10)
-                wacc_plane, terminal_plane = np.meshgrid(wacc_range_viz, terminal_range_viz)
-                price_plane = np.full_like(wacc_plane, current_market_price)
-                
-                fig_3d_scatter.add_trace(go.Surface(
-                    x=wacc_plane,
-                    y=terminal_plane,
-                    z=price_plane,
-                    colorscale=[[0, 'rgba(0,50,120,0.4)'], [1, 'rgba(0,100,200,0.6)']],  # Enhanced deeper blues
-                    showscale=False,
-                    opacity=0.5,  # Increased opacity
-                    name='Current Market Price',
-                    hovertemplate=f'Market Price: {format_currency(current_market_price, currency_symbol)}<extra></extra>'
-                ))
-                
-                # Add base case point with enhanced styling
-                fig_3d_scatter.add_trace(go.Scatter3d(
-                    x=[wacc * 100],
-                    y=[terminal_growth_rate * 100],
-                    z=[value_per_share],
-                    mode='markers',
-                    marker=dict(
-                        size=18,  # Larger size
-                        color='#FF4500',  # Bright orange-red
-                        symbol='diamond',
-                        line=dict(color='white', width=3),
-                        opacity=1.0
-                    ),
-                    name='Base Case DCF',
-                    text=[f'<b>Base Case DCF</b><br>WACC: {wacc*100:.2f}%<br>Terminal Growth: {terminal_growth_rate*100:.2f}%<br>Value: {format_currency(value_per_share, currency_symbol)}'],
-                    hovertemplate='%{text}<extra></extra>'
-                ))
-                
-                # Enhanced dark theme layout with BLACK background
-                fig_3d_scatter.update_layout(
-                    scene=dict(
-                        xaxis=dict(
-                            title=dict(text='WACC (%)', font=dict(size=14, color='white')),
-                            range=[wacc_min * 100, wacc_max * 100],
-                            showgrid=True,
-                            gridcolor='rgba(100,150,200,0.3)',  # Enhanced blue grid
-                            gridwidth=2,
-                            showbackground=True,
-                            backgroundcolor='rgba(0,0,0,0.8)',  # BLACK background
-                            tickfont=dict(color='white', size=11)
-                        ),
-                        yaxis=dict(
-                            title=dict(text='Terminal Growth Rate (%)', font=dict(size=14, color='white')),
-                            range=[terminal_min * 100, terminal_max * 100],
-                            showgrid=True,
-                            gridcolor='rgba(100,150,200,0.3)',  # Enhanced blue grid
-                            gridwidth=2,
-                            showbackground=True,
-                            backgroundcolor='rgba(0,0,0,0.8)',  # BLACK background
-                            tickfont=dict(color='white', size=11)
-                        ),
-                        zaxis=dict(
-                            title=dict(text=f'Value per Share ({currency_symbol})', font=dict(size=14, color='white')),
-                            showgrid=True,
-                            gridcolor='rgba(100,150,200,0.3)',  # Enhanced blue grid
-                            gridwidth=2,
-                            showbackground=True,
-                            backgroundcolor='rgba(0,0,0,0.8)',  # BLACK background
-                            tickfont=dict(color='white', size=11)
-                        ),
-                        camera=dict(
-                            up=dict(x=0, y=0, z=1),
-                            center=dict(x=0, y=0, z=0),
-                            eye=dict(x=1.8, y=1.8, z=1.2)
-                        ),
-                        bgcolor='rgba(0,0,0,1)',  # BLACK scene background
-                        aspectmode='cube'
-                    ),
-                    paper_bgcolor='rgba(0,0,0,1)',  # Black paper background
-                    plot_bgcolor='rgba(0,0,0,1)',  # BLACK plot background
-                    font=dict(color='white'),
-                    height=700,  # Increased height
-                    showlegend=True,
-                    legend=dict(
-                        bgcolor='rgba(0,0,0,0.8)',
-                        bordercolor='rgba(100,150,200,0.5)',
+                        thickness=15,
+                        len=0.6,
+                        bgcolor='rgba(0,0,0,0.8)',  # Darker colorbar background
+                        bordercolor='white',
                         borderwidth=1,
-                        font=dict(color='white', size=12),
-                        x=0.02,
-                        y=0.98
+                        tickfont=dict(color='white', size=11)
                     ),
-                    margin=dict(l=0, r=0, t=80, b=0)
-                )
-                
-                st.plotly_chart(fig_3d_scatter, use_container_width=True, config={
-                    'displayModeBar': True,
-                    'displaylogo': False,
-                    'modeBarButtonsToRemove': ['pan2d', 'lasso2d'],
-                    'toImageButtonOptions': {
-                        'format': 'png',
-                        'filename': 'dcf_monte_carlo_3d',
-                        'height': 700,
-                        'width': 1200,
-                        'scale': 1
-                    }
-                })
-                
-                
-            else:
-                st.warning("Insufficient valid data points for 3D Monte Carlo visualization.")
-        except Exception as e:
-            st.error(f"Error creating 3D Monte Carlo plot: {str(e)}")
+                    line=dict(color='rgba(255,255,255,0.3)', width=0.5)  # Subtle white outline
+                ),
+                text=[f'WACC: {w*100:.2f}%<br>Terminal Growth: {tg*100:.2f}%<br>Value: {format_currency(v, currency_symbol)}' 
+                      for w, tg, v in zip(wacc_scatter, terminal_scatter, sample_values)],
+                name='Monte Carlo Results',
+                hovertemplate='<b>Monte Carlo Scenario</b><br>%{text}<extra></extra>'
+            )])
+            
+            # Add current market price reference plane with enhanced blue
+            wacc_range_viz = np.linspace(wacc_min * 100, wacc_max * 100, 10)
+            terminal_range_viz = np.linspace(terminal_min * 100, terminal_max * 100, 10)
+            wacc_plane, terminal_plane = np.meshgrid(wacc_range_viz, terminal_range_viz)
+            price_plane = np.full_like(wacc_plane, current_market_price)
+            
+            fig_3d_scatter.add_trace(go.Surface(
+                x=wacc_plane,
+                y=terminal_plane,
+                z=price_plane,
+                colorscale=[[0, 'rgba(0,50,120,0.4)'], [1, 'rgba(0,100,200,0.6)']],  # Enhanced deeper blues
+                showscale=False,
+                opacity=0.5,  # Increased opacity
+                name='Current Market Price',
+                hovertemplate=f'Market Price: {format_currency(current_market_price, currency_symbol)}<extra></extra>'
+            ))
+            
+            # Add base case point with enhanced styling
+            fig_3d_scatter.add_trace(go.Scatter3d(
+                x=[wacc * 100],
+                y=[terminal_growth_rate * 100],
+                z=[value_per_share],
+                mode='markers',
+                marker=dict(
+                    size=18,  # Larger size
+                    color='#FF4500',  # Bright orange-red
+                    symbol='diamond',
+                    line=dict(color='white', width=3),
+                    opacity=1.0
+                ),
+                name='Base Case DCF',
+                text=[f'<b>Base Case DCF</b><br>WACC: {wacc*100:.2f}%<br>Terminal Growth: {terminal_growth_rate*100:.2f}%<br>Value: {format_currency(value_per_share, currency_symbol)}'],
+                hovertemplate='%{text}<extra></extra>'
+            ))
+            
+            # Enhanced dark theme layout with BLACK background
+            fig_3d_scatter.update_layout(
+                scene=dict(
+                    xaxis=dict(
+                        title=dict(text='WACC (%)', font=dict(size=14, color='white')),
+                        range=[wacc_min * 100, wacc_max * 100],
+                        showgrid=True,
+                        gridcolor='rgba(100,150,200,0.3)',  # Enhanced blue grid
+                        gridwidth=2,
+                        showbackground=True,
+                        backgroundcolor='rgba(0,0,0,0.8)',  # BLACK background
+                        tickfont=dict(color='white', size=11)
+                    ),
+                    yaxis=dict(
+                        title=dict(text='Terminal Growth Rate (%)', font=dict(size=14, color='white')),
+                        range=[terminal_min * 100, terminal_max * 100],
+                        showgrid=True,
+                        gridcolor='rgba(100,150,200,0.3)',  # Enhanced blue grid
+                        gridwidth=2,
+                        showbackground=True,
+                        backgroundcolor='rgba(0,0,0,0.8)',  # BLACK background
+                        tickfont=dict(color='white', size=11)
+                    ),
+                    zaxis=dict(
+                        title=dict(text=f'Value per Share ({currency_symbol})', font=dict(size=14, color='white')),
+                        showgrid=True,
+                        gridcolor='rgba(100,150,200,0.3)',  # Enhanced blue grid
+                        gridwidth=2,
+                        showbackground=True,
+                        backgroundcolor='rgba(0,0,0,0.8)',  # BLACK background
+                        tickfont=dict(color='white', size=11)
+                    ),
+                    camera=dict(
+                        up=dict(x=0, y=0, z=1),
+                        center=dict(x=0, y=0, z=0),
+                        eye=dict(x=1.8, y=1.8, z=1.2)
+                    ),
+                    bgcolor='rgba(0,0,0,1)',  # BLACK scene background
+                    aspectmode='cube'
+                ),
+                paper_bgcolor='rgba(0,0,0,1)',  # Black paper background
+                plot_bgcolor='rgba(0,0,0,1)',  # BLACK plot background
+                font=dict(color='white'),
+                height=700,  # Increased height
+                showlegend=True,
+                legend=dict(
+                    bgcolor='rgba(0,0,0,0.8)',
+                    bordercolor='rgba(100,150,200,0.5)',
+                    borderwidth=1,
+                    font=dict(color='white', size=12),
+                    x=0.02,
+                    y=0.98
+                ),
+                margin=dict(l=0, r=0, t=80, b=0)
+            )
+            
+            st.plotly_chart(fig_3d_scatter, use_container_width=True, config={
+                'displayModeBar': True,
+                'displaylogo': False,
+                'modeBarButtonsToRemove': ['pan2d', 'lasso2d'],
+                'toImageButtonOptions': {
+                    'format': 'png',
+                    'filename': 'dcf_monte_carlo_3d',
+                    'height': 700,
+                    'width': 1200,
+                    'scale': 1
+                }
+            })
+            
+            
+        else:
+            st.warning("Insufficient valid data points for 3D Monte Carlo visualization.")
+    except Exception as e:
+        st.error(f"Error creating 3D Monte Carlo plot: {str(e)}")
 # Single Stunning 3D DCF Sensitivity Analysis
 try:
     # Calculate surface with optimal resolution
