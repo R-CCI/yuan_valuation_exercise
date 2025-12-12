@@ -1726,7 +1726,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
 try:
     # Calculate surface with optimal resolution
     wacc_range = np.linspace(wacc * 0.7, wacc * 1.3, 30)
-    terminal_range = np.linspace(0.01, 0.18, 30)
+    terminal_range = np.linspace(0.01, 0.10, 30)
 
     # Create meshgrid for surface
     wacc_mesh, terminal_mesh = np.meshgrid(wacc_range, terminal_range)
@@ -1742,7 +1742,7 @@ try:
                 try:
                     terminal_fcf = fcf_projections[-1] * (1 + tg)
                     terminal_val = terminal_fcf / (w - tg)
-                    pv_terminal = terminal_val / ((1 + w) ** 5)
+                    pv_terminal = terminal_val / ((1 + w) ** len(fcf_projections))
                     pv_fcf_sum = sum([fcf / ((1 + w) ** k) for k, fcf in enumerate(fcf_projections, 1)])
                     enterprise_val = pv_fcf_sum + pv_terminal
                     equity_val = enterprise_val - net_debt
