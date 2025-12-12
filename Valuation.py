@@ -913,10 +913,10 @@ with tab1:
             revenues = income.loc["Total Revenue"].sort_index()
             ebit = income.loc["Operating Income"].sort_index()
             ebit_margin = (ebit / revenues).dropna()
-            ebit_opton = st.radio('Crecimiento de los Ingresos', ['Fijo', 'Variable'], index=0)
+            ebit_option = st.radio('Margen EBIT', ['Fijo', 'Variable'], index=0)
             avg_ebit_margin = ebit_margin.mean()
             st.write(f'Promedio de Margen EBIT (últimos 3 años): {avg_ebit_margin*100:.2f}%')
-            if ebit_opton == 'Fijo':
+            if ebit_option == 'Fijo':
                 ebit_margin_base = st.number_input(
                     "Margen EBIT (%)", 
                     min_value=-50.0, 
@@ -924,11 +924,11 @@ with tab1:
                     value=industry_data.get("ebitda_margin", 20.0), 
                     step=0.1
                 ) / 100
-                ebitda_margin_1 = revenue_growth
-                ebitda_margin_2 = revenue_growth
-                ebitda_margin_2 = revenue_growth
-                ebitda_margin_4 = revenue_growth
-                ebitda_margin_5 = revenue_growth 
+                ebitda_margin_1 = ebit_margin_base
+                ebitda_margin_2 = ebit_margin_base
+                ebitda_margin_2 = ebit_margin_base
+                ebitda_margin_4 = ebit_margin_base
+                ebitda_margin_5 = ebit_margin_base
             else:
                 ebitda_margin_1 = st.number_input(
                     "Margen EBIT Año 1 (%)", 
