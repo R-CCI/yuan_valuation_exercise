@@ -1306,17 +1306,15 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                     st.plotly_chart(fig_dist, use_container_width=True)
                     
                     # Summary statistics
-                    st.markdown("##### 📊 Resumen Estadístico")
-                    stats_df = pd.DataFrame({
-                        'Metric': ['Mean', 'Standard Deviation', 'Coefficient of Variation', 'Probability of Positive Value'],
-                        'Value': [
-                            format_currency(np.mean(simulation_results), currency_symbol),
-                            format_currency(np.std(simulation_results), currency_symbol),
-                            f"{np.std(simulation_results)/np.mean(simulation_results)*100:.1f}%",
-                            f"{len([x for x in simulation_results if x > 0])/len(simulation_results)*100:.1f}%"
-                        ]
-                    })
-                    st.dataframe(stats_df, use_container_width=True, hide_index=True)
+                    #st.markdown("##### 📊 Resumen Estadístico de la Variación del valor de la acción")
+                    #stats_df = pd.DataFrame({
+                    #    'Estadístico': ['Media', 'Desviación Estándar'],
+                    #    'Valor': [
+                    #        format_currency(np.mean(simulation_results), currency_symbol),
+                    #        format_currency(np.std(simulation_results), currency_symbol),
+                    #    ]
+                    #})
+                    #st.dataframe(stats_df, use_container_width=True, hide_index=True)
             
             
             fig_3d_scatter = go.Figure(data=[go.Scatter3d(
@@ -1611,73 +1609,70 @@ except Exception as e:
     st.error(f"3D visualization failed: {str(e)}")
     st.info("💡 Tip: Try refreshing the page or check if your data inputs are valid.")
 
+st.markdown("### Comportamiento del Modelo")
 
-# Performance metrics and model validation
-if st.checkbox("🔍 Show Model Performance Metrics", value=False):
-    st.markdown("### 📊 Model Performance & Validation")
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("#### 🎯 Estadísticos Clave")
     
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("#### 🎯 Key Model Statistics")
+    # Calculate model statistics
+    if run_monte_carlo and simulation_results:
+        confidence_interval_95 = np.percentile(simulation_results, [2.5, 97.5])
+        model_confidence = len([x for x in simulation_results if confidence_interval_95[0] <= x <= confidence_interval_95[1]]) / len(simulation_results)
         
-        # Calculate model statistics
-        if run_monte_carlo and simulation_results:
-            confidence_interval_95 = np.percentile(simulation_results, [2.5, 97.5])
-            model_confidence = len([x for x in simulation_results if confidence_interval_95[0] <= x <= confidence_interval_95[1]]) / len(simulation_results)
-            
-            performance_metrics = pd.DataFrame({
-                'Metric': [
-                    'Simulation Count',
-                    'Mean Valuation',
-                    'Median Valuation', 
-                    'Standard Deviation',
-                    '95% Confidence Interval',
-                    'Model Confidence',
-                    'Probability of Positive NPV'
-                ],
-                'Value': [
-                    f"{len(simulation_results):,}",
-                    format_currency(np.mean(simulation_results), currency_symbol),
-                    format_currency(np.median(simulation_results), currency_symbol),
-                    format_currency(np.std(simulation_results), currency_symbol),
-                    f"{format_currency(confidence_interval_95[0], currency_symbol)} - {format_currency(confidence_interval_95[1], currency_symbol)}",
-                    f"{model_confidence*100:.1f}%",
-                    f"{len([x for x in simulation_results if x > 0])/len(simulation_results)*100:.1f}%"
-                ]
-            })
-            
-            st.dataframe(performance_metrics, use_container_width=True, hide_index=True)
-    
-    with col2:
-        st.markdown("#### ⚠️ Model Risk Assessment")
-        
-        risk_factors = pd.DataFrame({
-            'Risk Factor': [
-                'Terminal Value Sensitivity',
-                'WACC Assumption Risk',
-                'Growth Rate Uncertainty', 
-                'Cash Flow Volatility',
-                'Market Conditions',
-                'Industry Cyclicality'
+        performance_metrics = pd.DataFrame({
+            'Metric': [
+                'Simulaciones válidas',
+                'Valor Esperado',
+                #'Mediana', 
+                'Desviación Estándar',
+                'Intervalor de Confianza 95%',
+                #'Model Confidence',
+                #'Probability of Positive NPV'
             ],
-            'Impact Level': [
-                'High - 60% of total value',
-                'High - Direct discount impact',
-                'Medium - Early years material',
-                'Medium - Historical variance',
-                'High - Beta > 1.0',
-                f"{'High' if industry in ['Technology', 'Energy'] else 'Medium'}"
-            ],
-            'Mitigation Strategy': [
-                'Scenario analysis & ranges',
-                'Market-based validation',
-                'Conservative assumptions',
-                'Monte Carlo simulation',
-                'Beta adjustment factors',
-                'Industry-specific benchmarks'
+            'Value': [
+                f"{len(simulation_results):,}",
+                format_currency(np.mean(simulation_results), currency_symbol),
+                #format_currency(np.median(simulation_results), currency_symbol),
+                format_currency(np.std(simulation_results), currency_symbol),
+                f"{format_currency(confidence_interval_95[0], currency_symbol)} - {format_currency(confidence_interval_95[1], currency_symbol)}",
+                #f"{model_confidence*100:.1f}%",
+                #f"{len([x for x in simulation_results if x > 0])/len(simulation_results)*100:.1f}%"
             ]
         })
         
-        st.dataframe(risk_factors, use_container_width=True, hide_index=True)
-        
+        st.dataframe(performance_metrics, use_container_width=True, hide_index=True)
+
+#with col2:
+#    st.markdown("#### ⚠️ Model Risk Assessment")
+    
+#    risk_factors = pd.DataFrame({
+#        'Factores de Riesgo': [
+#            'Sensibilidad al Valor Terminal',
+#            'WACC Assumption Risk',
+#            'Growth Rate Uncertainty', 
+#            'Cash Flow Volatility',
+#            'Market Conditions',
+#            'Industry Cyclicality'
+#        ],
+#        'Nivel de Impacto': [
+#            'High - 60% of total value',
+#            'High - Direct discount impact',
+#            'Medium - Early years material',
+#            'Medium - Historical variance',
+#            'High - Beta > 1.0',
+#            f"{'High' if industry in ['Technology', 'Energy'] else 'Medium'}"
+#        ],
+#        'Mitigation Strategy': [
+#            'Scenario analysis & ranges',
+#            'Market-based validation',
+#            'Conservative assumptions',
+#            'Monte Carlo simulation',
+#            'Beta adjustment factors',
+#            'Industry-specific benchmarks'
+#        ]
+#    })
+    
+    st.dataframe(risk_factors, use_container_width=True, hide_index=True)
+    
