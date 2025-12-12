@@ -1141,7 +1141,7 @@ with tab3:
                 fig_dist.add_vline(x=perc, line_dash="dash", line_color=color, annotation_text=label, annotation_position="top")
                 
             fig_dist.update_layout(
-                title="Monte Carlo Valuation Distribution",
+                title="Monte Carlo Distribution",
                 xaxis_title=f"Value Per Share ({currency_symbol})",
                 yaxis_title="Frequency",
                 template="plotly_white",
@@ -1506,7 +1506,16 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
         terminal_scatter = terminal_scatter[valid_indices]
         sample_values = np.array([dcf(w, tg) / sharesOutstanding
                           for w, tg in zip(wacc_scatter, terminal_scatter)])
-        
+        fig_dist = go.Figure()
+        fig_dist.add_trace(go.Histogram(
+                x=simulation_results,
+                nbinsx=50,
+                name='Valuation Distribution',
+                marker_color='rgba(102, 126, 234, 0.7)',
+                opacity=0.7)
+        )
+        st.plotly_chart(fig_dist, use_container_width=True)
+            
         # Ensure we have valid data
         if len(sample_values) > 0 and len(wacc_scatter) > 0:
             # Create size variation based on probability density
