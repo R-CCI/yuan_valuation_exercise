@@ -667,9 +667,9 @@ with st.sidebar:
     # Enhanced risk-free rate section
     col1, col2 = st.columns([2, 1])
     with col1:
-    scraped_rate = get_risk_free_rate(country)
-    st.session_state.risk_free_rate = scraped_rate
-    st.success(f"✅ Rendimiento US Bond 10Y: {scraped_rate:.2f}%")
+        scraped_rate = get_risk_free_rate(country)
+        st.session_state.risk_free_rate = scraped_rate
+        st.success(f"✅ Rendimiento US Bond 10Y: {scraped_rate:.2f}%")
     
     # Initialize session state
     if 'risk_free_rate' not in st.session_state:
