@@ -702,6 +702,7 @@ with st.sidebar:
     total_equity = last_price * sharesOutstanding
     balance, income, cashflow = res['balance'].T, res['income'].T , res['cashflow'].T 
     debt_long = balance.loc['Long Term Debt And Capital Lease Obligation'].iloc[0]
+    cash = balance.loc['Cash And Cash Equivalents'].iloc[0]
     st.write(f'Deuda: {debt_long:,.2f}')
     st.write(f'Equity: {total_equity:,.2f}')
     equity_ratio = total_equity/(total_equity+debt_long)
