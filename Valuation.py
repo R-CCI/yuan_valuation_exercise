@@ -1483,7 +1483,7 @@ try:
     # Create the stunning 3D plot
     fig = go.Figure()
 
-    # Main surface with beautiful gradient
+    ## Main surface with beautiful gradient
     fig.add_trace(go.Surface(
         z=surface_values,
         x=wacc_mesh * 100,
