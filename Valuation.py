@@ -876,35 +876,35 @@ with tab1:
                     "Crecimiento de los Ingresos Año 1 (%)", 
                     min_value=-50.0, 
                     max_value=100.0, 
-                    value=industry_data.get("typical_growth_high", 15.0), 
+                    value=25, 
                     step=0.1
                 ) / 100
                 revenue_growth_2 = st.number_input(
                     "Crecimiento de los Ingresos Año 2 (%)", 
                     min_value=-50.0, 
                     max_value=100.0, 
-                    value=industry_data.get("typical_growth_high", 15.0), 
+                    value=20, 
                     step=0.1
                 ) / 100
                 revenue_growth_3 = st.number_input(
                     "Crecimiento de los Ingresos Año 3 (%)", 
                     min_value=-50.0, 
                     max_value=100.0, 
-                    value=industry_data.get("typical_growth_high", 15.0), 
+                    value=15, 
                     step=0.1
                 ) / 100
                 revenue_growth_4 = st.number_input(
                     "Crecimiento de los Ingresos Año 4 (%)", 
                     min_value=-50.0, 
                     max_value=100.0, 
-                    value=industry_data.get("typical_growth_high", 15.0), 
+                    value=10, 
                     step=0.1
                 ) / 100
                 revenue_growth_5 = st.number_input(
                     "Crecimiento de los Ingresos Año 5 (%)", 
                     min_value=-50.0, 
                     max_value=100.0, 
-                    value=industry_data.get("typical_growth_high", 15.0), 
+                    value=5, 
                     step=0.1
                 ) / 100
             
