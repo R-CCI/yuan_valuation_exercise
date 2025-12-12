@@ -914,7 +914,7 @@ with tab2:
 
     equity_value = ev_base - debt_long + cash
     value_per_share_base = equity_value / sharesOutstanding
-    st.write(f'Valor por Acción: {value_per_share:,.2f}')
+    st.write(f'Valor por Acción: {value_per_share_base:,.2f}')
     
     # Display financial projections table
     st.markdown(f"#### 📊 Proyecciones a {num_years_financial_core} años")
@@ -1196,7 +1196,7 @@ with tab3:
         st.markdown(f"""
         <div class="valuation-highlight">
             <h2 style='margin: 0;'>Intrinsic Value Per Share</h2>
-            <h1 style='font-size: 3rem; margin: 1rem 0;'>{format_currency(value_per_share, currency_symbol)}</h1>
+            <h1 style='font-size: 3rem; margin: 1rem 0;'>{format_currency(value_per_share_base, currency_symbol)}</h1>
             <p style='margin: 0; opacity: 0.9;'>Based on DCF Analysis</p>
         </div>
         """, unsafe_allow_html=True)
