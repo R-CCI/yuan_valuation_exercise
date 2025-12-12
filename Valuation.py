@@ -1077,7 +1077,7 @@ with tab3:
                 sim_fcf.append(sim_fcf_year)
                 
             # Calculate enterprise value for this simulation
-            sim_discount_factors = [(1 + sim_wacc) ** k for k in range(1, 6)]
+            sim_discount_factors = [(1 + sim_wacc) ** k for k in range(1, num_years_financial_core+1)]
             sim_pv_fcf = [fcf / df for fcf, df in zip(sim_fcf, sim_discount_factors)]
             
             if sim_wacc > sim_terminal_growth: # Ensure valid terminal value calculation
