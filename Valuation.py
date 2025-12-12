@@ -1613,36 +1613,36 @@ st.markdown("### Comportamiento del Modelo")
 
 col1, col2 = st.columns(2)
 
-with col1:
-    st.markdown("#### 🎯 Estadísticos Clave")
+#with col1:
+st.markdown("#### 🎯 Estadísticos Clave")
+
+# Calculate model statistics
+if run_monte_carlo and simulation_results:
+    confidence_interval_95 = np.percentile(simulation_results, [2.5, 97.5])
+    model_confidence = len([x for x in simulation_results if confidence_interval_95[0] <= x <= confidence_interval_95[1]]) / len(simulation_results)
     
-    # Calculate model statistics
-    if run_monte_carlo and simulation_results:
-        confidence_interval_95 = np.percentile(simulation_results, [2.5, 97.5])
-        model_confidence = len([x for x in simulation_results if confidence_interval_95[0] <= x <= confidence_interval_95[1]]) / len(simulation_results)
-        
-        performance_metrics = pd.DataFrame({
-            'Metric': [
-                'Simulaciones válidas',
-                'Valor Esperado',
-                #'Mediana', 
-                'Desviación Estándar',
-                'Intervalor de Confianza 95%',
-                #'Model Confidence',
-                #'Probability of Positive NPV'
-            ],
-            'Value': [
-                f"{len(simulation_results):,}",
-                format_currency(np.mean(simulation_results), currency_symbol),
-                #format_currency(np.median(simulation_results), currency_symbol),
-                format_currency(np.std(simulation_results), currency_symbol),
-                f"{format_currency(confidence_interval_95[0], currency_symbol)} - {format_currency(confidence_interval_95[1], currency_symbol)}",
-                #f"{model_confidence*100:.1f}%",
-                #f"{len([x for x in simulation_results if x > 0])/len(simulation_results)*100:.1f}%"
-            ]
-        })
-        
-        st.dataframe(performance_metrics, use_container_width=True, hide_index=True)
+    performance_metrics = pd.DataFrame({
+        'Metrica': [
+            'Simulaciones válidas',
+            'Valor Esperado',
+            #'Mediana', 
+            'Desviación Estándar',
+            'Intervalor de Confianza 95%',
+            #'Model Confidence',
+            #'Probability of Positive NPV'
+        ],
+        'Valor': [
+            f"{len(simulation_results):,}",
+            format_currency(np.mean(simulation_results), currency_symbol),
+            #format_currency(np.median(simulation_results), currency_symbol),
+            format_currency(np.std(simulation_results), currency_symbol),
+            f"{format_currency(confidence_interval_95[0], currency_symbol)} - {format_currency(confidence_interval_95[1], currency_symbol)}",
+            #f"{model_confidence*100:.1f}%",
+            #f"{len([x for x in simulation_results if x > 0])/len(simulation_results)*100:.1f}%"
+        ]
+    })
+    
+    st.dataframe(performance_metrics, use_container_width=True, hide_index=True)
 
 #with col2:
 #    st.markdown("#### ⚠️ Model Risk Assessment")
