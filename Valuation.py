@@ -882,7 +882,8 @@ with tab2:
     ebitda_projections = []
     fcf_projections = []
     years = [i+1 for i in range(num_years_financial_core)]
-    
+
+    st.write(revenue_growth_rates)
     #revenue_growth_rates = [revenue_growth_1, revenue_growth_2, revenue_growth_3, revenue_growth_4, revenue_growth_5]
     #ebitda_margins = [ebitda_margin_1, ebitda_margin_2, ebitda_margin_3, ebitda_margin_4, ebitda_margin_5]
     
