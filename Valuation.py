@@ -1044,7 +1044,7 @@ with tab2:
     ev_base = sum(pv_fcf) + pv_tv
     st.write(f'Valor Presente de los Flujos: {sum(pv_fcf):,.2f}')
     st.write(f'Valor Presente del Valor Terminal: {pv_tv:,.2f}')
-    equity_value = ev_base - net_debt
+    equity_value = ev_base - debt_long
     value_per_share = equity_value / sharesOutstanding
     st.write(f'Valor por Acción: {value_per_share:,.2f}')
     
