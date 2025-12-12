@@ -824,7 +824,7 @@ with tab1:
                     value=50.0, #industry_data.get("ebitda_margin", 20.0), 
                     step=0.1
                 ) / 100
-                margenes_ebit = [ebit_margin_base] * int(num_years_financial_core)
+                ebitda_margins = [ebit_margin_base] * int(num_years_financial_core)
             else:
                 for year in range(1, int(num_years_financial_core) + 1):
                     default_growth_factor = 1 + (year - 1) * 0.025  # 2.5% yearly increase just like your pattern
@@ -836,7 +836,7 @@ with tab1:
                     step=0.1
                     ) / 100
         
-                    margenes_ebit.append(margen)
+                    ebitda_margins.append(margen)
     with col2:
         st.markdown("#### Supuestos")
         capex = balance.loc["Net PPE"].sort_index().sort_index().diff()
@@ -885,7 +885,7 @@ with tab2:
 
     st.write(revenue_growth_rates)
     #revenue_growth_rates = [revenue_growth_1, revenue_growth_2, revenue_growth_3, revenue_growth_4, revenue_growth_5]
-    #ebitda_margins = [ebitda_margin_1, ebitda_margin_2, ebitda_margin_3, ebitda_margin_4, ebitda_margin_5]
+    #ebitda_margins = #[ebitda_margin_1, ebitda_margin_2, ebitda_margin_3, ebitda_margin_4, ebitda_margin_5]
     
     # Build financial projections
     for i, (growth_rate, margin) in enumerate(zip(revenue_growth_rates, ebitda_margins)):
