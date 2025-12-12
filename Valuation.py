@@ -1259,7 +1259,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                     with col1:
                         st.markdown(f"""
                         <div class="metric-card">
-                        <h4 style='color: #dc2626;'>Escenario Bajista (10th %ile)</h4>
+                        <h4 style='color: #dc2626;'>Escenario Bajista (Percentil 10)</h4>
                         <h2 style='color: #dc2626;'>{format_currency(percentiles[0], currency_symbol)}</h2>
                         </div>
                         """, unsafe_allow_html=True)
@@ -1273,7 +1273,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                     with col3:
                         st.markdown(f"""
                         <div class="metric-card">
-                        <h4 style='color: #16a34a;'>Escenario Alcista (90th %ile)</h4>
+                        <h4 style='color: #16a34a;'>Escenario Alcista (Percentil 90)</h4>
                         <h2 style='color: #16a34a;'>{format_currency(percentiles[4], currency_symbol)}</h2>
                         </div>
                         """, unsafe_allow_html=True)
