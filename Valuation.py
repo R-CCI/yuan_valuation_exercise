@@ -1025,7 +1025,7 @@ with tab3:
         fcf_projections.append(fcf)
     
     # Discount factors based on num_years
-    discount_factors = [(1 + wacc) ** i for i in range(1, num_years + 1)]
+    discount_factors = [(1 + wacc) ** i for i in range(1, num_years_financial_core + 1)]
     pv_fcf = [fcf / df for fcf, df in zip(fcf_projections, discount_factors)]
     
     # Terminal value (uses last projection and num_years)
@@ -1055,12 +1055,12 @@ with tab3:
         terminal_growth_dist = np.random.normal(terminal_growth_rate, max(1e-6, abs(terminal_growth_rate) * 0.3), num_simulations)
     
         # revenue growth dist: shape (num_years, num_simulations)
-        rev_growth_dist = np.zeros((num_years, num_simulations))
+        rev_growth_dist = np.zeros((num_years_financial_core, num_simulations))
         for idx, growth in enumerate(revenue_growth_rates):
             rev_growth_dist[idx, :] = np.random.normal(growth, abs(growth) * 0.25 if abs(growth) > 1e-6 else 0.05, num_simulations)
     
         # ebitda margin dist
-        ebitda_margin_dist = np.zeros((num_years, num_simulations))
+        ebitda_margin_dist = np.zeros((num_years_financial_core, num_simulations))
         for idx, margin in enumerate(ebitda_margins_list):
             ebitda_margin_dist[idx, :] = np.random.normal(margin, max(1e-6, abs(margin) * 0.15), num_simulations)
     
@@ -1073,7 +1073,7 @@ with tab3:
             # build per-simulation FCFs
             sim_fcf = []
             sim_revenue_loop = current_revenue
-            for j in range(num_years):
+            for j in range(num_years_financial_core):
                 sim_rev_growth = float(np.clip(rev_growth_dist[j, i], -0.5, 1.0))
                 sim_ebitda_margin = float(np.clip(ebitda_margin_dist[j, i], 0.0, 0.6))
     
@@ -1089,7 +1089,7 @@ with tab3:
                 sim_fcf.append(sim_fcf_year)
     
             # discount & terminal
-            sim_discount_factors = [(1 + sim_wacc) ** k for k in range(1, num_years + 1)]
+            sim_discount_factors = [(1 + sim_wacc) ** k for k in range(1, num_years_financial_core + 1)]
             sim_pv_fcf = [fcf / df for fcf, df in zip(sim_fcf, sim_discount_factors)]
     
             if sim_wacc - sim_terminal_growth > 1e-6:
@@ -1189,7 +1189,7 @@ with tab3:
             <h3 style='margin-top: 0;'>🏛️ DCF Valuation Summary</h3>
             <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 2rem;'>
                 <div>
-                    <h4>Present Value of FCF (Years 1-{num_years})(In currency)</h4>
+                    <h4>Present Value of FCF (Years 1-{num_years_financial_core})(In currency)</h4>
                     <h2>{format_currency(sum(pv_fcf), currency_symbol)}</h2>
                 </div>
                 <div>
@@ -1229,7 +1229,7 @@ with tab3:
             if w - tg > 1e-6:
                 sens_terminal_fcf = fcf_projections[-1] * (1 + tg)
                 sens_terminal_value = sens_terminal_fcf / (w - tg)
-                sens_pv_terminal_value = sens_terminal_value / ((1 + w) ** num_years)
+                sens_pv_terminal_value = sens_terminal_value / ((1 + w) ** num_years_financial_core)
                 sens_pv_fcf_sum = sum([fcf / ((1 + w) ** i) for i, fcf in enumerate(fcf_projections, 1)])
                 sens_enterprise_value = sens_pv_fcf_sum + sens_pv_terminal_value
                 sens_equity_value = sens_enterprise_value - debt_long + cash
@@ -1252,7 +1252,7 @@ with tab3:
     ))
     
     fig_sens.update_layout(
-        title=f"Análisis de Sensibilidad: WACC vs Valor Terminal (Proyección {num_years} años)",
+        title=f"Análisis de Sensibilidad: WACC vs Valor Terminal (Proyección {num_years_financial_core} años)",
         xaxis_title="Terminal Growth Rate",
         yaxis_title="WACC",
         height=500
