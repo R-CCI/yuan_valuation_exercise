@@ -1725,7 +1725,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
 try:
     # Calculate surface with optimal resolution
     wacc_range = np.linspace(wacc * 0.7, wacc * 1.3, 30)
-    terminal_range = np.linspace(max(terminal_growth_rate * 0.3, 0.005), min(terminal_growth_rate * 2.5, 0.05), 30)
+    terminal_range = np.linspace(terminal_growth_rate * 0.7, terminal_growth_rate * 1.3, 30)
 
     # Create meshgrid for surface
     wacc_mesh, terminal_mesh = np.meshgrid(wacc_range, terminal_range)
