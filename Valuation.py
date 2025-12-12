@@ -1041,7 +1041,7 @@ with tab2:
         fcf_projections.append(fcf)
     pv_fcf = [fcf_projections[i]/(1+wacc)**(i+1) for  i in range(5)]
     pv_tv = ((fcf_projections[-1]*(1+tgr))/(wacc-tgr))/((1+wacc)**5)
-    ev_base = pv_fcf.sum() + pv_tv
+    ev_base = sum(pv_fcf) + pv_tv
     st.write(f'Valor Presente de los Flujos: {pv_fcf.sum():,.2f}%')
     st.write(f'Valor Presente del Valor Terminal: {pv_tv.sum():,.2f}%')
     
