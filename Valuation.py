@@ -1506,15 +1506,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
         terminal_scatter = terminal_scatter[valid_indices]
         sample_values = np.array([dcf(w, tg) / sharesOutstanding
                           for w, tg in zip(wacc_scatter, terminal_scatter)])
-        fig_dist = go.Figure()
-        fig_dist.add_trace(go.Histogram(
-                x=sample_values,
-                nbinsx=50,
-                name='Valuation Distribution',
-                marker_color='rgba(102, 126, 234, 0.7)',
-                opacity=0.7)
-        )
-        st.plotly_chart(fig_dist, use_container_width=True)
+
             
         # Ensure we have valid data
         if len(sample_values) > 0 and len(wacc_scatter) > 0:
@@ -1534,6 +1526,16 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
             terminal_scatter = terminal_scatter[:min_length]
             sample_values = sample_values[:min_length]
             marker_sizes = marker_sizes[:min_length]
+            
+            fig_dist = go.Figure()
+            fig_dist.add_trace(go.Histogram(
+                    x=sample_values,
+                    nbinsx=50,
+                    name='MonteCarlo Histogram',
+                    marker_color='rgba(102, 126, 234, 0.7)',
+                    opacity=0.7)
+            )
+            st.plotly_chart(fig_dist, use_container_width=True)
             
             fig_3d_scatter = go.Figure(data=[go.Scatter3d(
                 x=wacc_scatter * 100,
