@@ -701,6 +701,8 @@ with st.sidebar:
     #last_price = info['regularMarketPreviousClose']
     total_equity = last_price * sharesOutstanding
     balance, income, cashflow = res['balance'].T, res['income'].T , res['cashflow'].T 
+    st.dataframe(income)
+    st.dataframe(balance)
     debt_long = balance.loc['Long Term Debt And Capital Lease Obligation'].iloc[0]
     st.write(f'Deuda: {debt_long:,.2f}')
     st.write(f'Equity: {total_equity:,.2f}')
