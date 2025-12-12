@@ -1541,13 +1541,21 @@ with tab4:
 
 st.markdown("### 🌐 Análisis Sensibilidad del Valor de la Acción")
 
+def dcf(w, tg):
+    terminal_fcf = fcf_projections[-1] * (1 + tg)
+    terminal_val = terminal_fcf / (w - tg)
+    pv_terminal = terminal_val / ((1 + w) ** len(fcf_projections))
+    pv_fcf_sum = sum(fcf / ((1 + w)**(k+1)) for k, fcf in enumerate(fcf_projections))
+    return pv_fcf_sum + pv_terminal - net_debt
+
 # Create 3D scatter plot for Monte Carlo results
 if run_monte_carlo and simulation_results and len(simulation_results) > 100:
     try:
         # Sample points for visualization with better distribution
         sample_size = min(500, len(simulation_results))
         sample_indices = np.random.choice(len(simulation_results), sample_size, replace=False)
-        sample_values = [simulation_results[i] for i in sample_indices]
+        sample_values = np.array([dcf(w, tg) / sharesOutstanding
+                          for w, tg in zip(wacc_scatter, terminal_scatter)])
         
         # Create more spread out variations for better visualization
         wacc_min, wacc_max = wacc * 0.7, wacc * 1.3
@@ -1726,7 +1734,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
 try:
     # Calculate surface with optimal resolution
     wacc_range = np.linspace(wacc * 0.7, wacc * 1.3, 30)
-    terminal_range = np.linspace(0.01, 0.10, 30)
+    terminal_range = np.linspace(0.01, 0.12, 30)
 
     # Create meshgrid for surface
     wacc_mesh, terminal_mesh = np.meshgrid(wacc_range, terminal_range)
