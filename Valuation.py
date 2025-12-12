@@ -892,7 +892,8 @@ with tab2:
             revenue = current_revenue * (1 + growth_rate)
         else:
             revenue = revenue_projections[i-1] * (1 + growth_rate)
-        
+
+        st.write(revenue)
         ebitda = revenue * margin
         depreciation = revenue * depreciation_revenue_ratio
         ebit = ebitda - depreciation
@@ -907,7 +908,7 @@ with tab2:
         revenue_projections.append(revenue)
         ebitda_projections.append(ebitda)
         fcf_projections.append(fcf)
-    st.write(fcf_projections)
+    
     pv_fcf = [fcf_projections[i]/(1+wacc)**(i+1) for  i in range(num_years_financial_core)]
     pv_tv = ((fcf_projections[-1]*(1+tgr))/(wacc-tgr))/((1+wacc)**num_years_financial_core)
     ev_base = sum(pv_fcf) + pv_tv
