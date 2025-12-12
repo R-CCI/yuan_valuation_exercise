@@ -831,8 +831,8 @@ with tab1:
                     margen = st.number_input(
                     f"Margen EBIT Año {year} (%)",
                     min_value=-20.0,
-                    max_value=60.0,
-                    value=50.00 * default_growth_factor,
+                    max_value=100.0,
+                    value=40.00 * default_growth_factor,
                     step=0.1
                     ) / 100
         
