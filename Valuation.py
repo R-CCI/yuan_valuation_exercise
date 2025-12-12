@@ -894,10 +894,10 @@ with tab1:
         # Capital expenditure and depreciation
         st.write(f'Promedio de % CAPEX (últimos 3 años): {capex_pct.mean()*100:.2f}%')
         capex_revenue_ratio = st.number_input(
-            "CapEx as % of Revenue", 
+            "% CapEx", 
             min_value=0.0, 
             max_value=30.0, 
-            value=industry_data.get("capex_rev", 8.0), 
+            value=2.5#industry_data.get("capex_rev", 8.0), 
             step=0.1
         ) / 100
 
@@ -908,7 +908,7 @@ with tab1:
             "% de Depreciación y Amortización", 
             min_value=0.0, 
             max_value=20.0, 
-            value=industry_data.get("depreciation_rev", 6.0), 
+            value=3#industry_data.get("depreciation_rev", 6.0), 
             step=0.1
         ) / 100
 
@@ -920,7 +920,7 @@ with tab1:
             "Cambios en el Capital de Trabajo (NWC)", 
             min_value=-10.0, 
             max_value=15.0, 
-            value=industry_data.get("wc_change_rev", 3.0), 
+            value=2#industry_data.get("wc_change_rev", 3.0), 
             step=0.1
         ) / 100
         
