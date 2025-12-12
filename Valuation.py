@@ -1196,28 +1196,28 @@ with tab4:
     #)
     
     # Determine recommendation
-    if run_monte_carlo and simulation_results:
-        base_case_value = percentiles[2]  # Median from Monte Carlo
-        upside_potential = (base_case_value - current_market_price) / current_market_price
-    else:
-        base_case_value = value_per_share
-        upside_potential = (value_per_share - current_market_price) / current_market_price
+#    if run_monte_carlo and simulation_results:
+ #       base_case_value = percentiles[2]  # Median from Monte Carlo
+  #      upside_potential = (base_case_value - current_market_price) / current_market_price
+  #  else:
+   #     base_case_value = value_per_share
+    #    upside_potential = (value_per_share - current_market_price) / current_market_price
     
-    if upside_potential > 0.20:
-        recommendation = "🟢 STRONG BUY"
-        rec_color = "#16a34a"
-    elif upside_potential > 0.10:
-        recommendation = "🟢 BUY" 
-        rec_color = "#22c55e"
-    elif upside_potential > -0.10:
-        recommendation = "🟡 HOLD"
-        rec_color = "#eab308"
-    elif upside_potential > -0.25:
-        recommendation = "🔴 SELL"
-        rec_color = "#ef4444"
-    else:
-        recommendation = "🔴 STRONG SELL"
-        rec_color = "#dc2626"
+   # if upside_potential > 0.20:
+    #    recommendation = "🟢 STRONG BUY"
+    #    rec_color = "#16a34a"
+    #elif upside_potential > 0.10:
+    #    recommendation = "🟢 BUY" 
+    #    rec_color = "#22c55e"
+    #elif upside_potential > -0.10:
+    #    recommendation = "🟡 HOLD"
+    #    rec_color = "#eab308"
+    #elif upside_potential > -0.25:
+    #    recommendation = "🔴 SELL"
+    #    rec_color = "#ef4444"
+    #else:
+    #   recommendation = "🔴 STRONG SELL"
+    #  rec_color = "#dc2626"
     
     # Executive Summary
     st.markdown(f"""
