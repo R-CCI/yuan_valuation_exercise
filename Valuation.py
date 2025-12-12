@@ -130,8 +130,8 @@ def get_financials_with_annualized_ttm(ticker_symbol: str,
       - Balance sheet is point-in-time: no TTM sum; if annual missing, we use most recent quarter and flag it.
     """
     ticker_obj = yf.Ticker(ticker_symbol)
-    ticker_info = ticker_obj.info         
-    #price = ticker_obj.info['regularMarketPreviousClose']
+    shares = ticker_obj.info['sharesOutstanding']         
+    price = ticker_obj.info['regularMarketPreviousClose']
     out = {}
     # fetch all relevant raw dfs from yfinance
     raw_income_annual = _transpose_and_parse(ticker_obj.financials)       # annual income
@@ -228,7 +228,7 @@ def get_financials_with_annualized_ttm(ticker_symbol: str,
             combined['annualized_partial'] = False
         out['balance'] = combined[[c for c in combined.columns if c not in ['is_trailing', 'source', 'annualized_partial']]]
 
-    return out, ticker_info
+    return out, shares, price
 
 
 # Enhanced Industry benchmarks with more comprehensive data
@@ -778,9 +778,9 @@ with st.sidebar:
 
     tgr = st.number_input("Crecimiento de la Perpetuidad (%)", value=5.0, step=0.5) / 100
 
-    res, ticker_info = get_financials_with_annualized_ttm(ticker_symbol, statements=('income','cashflow','balance'), annualize_partial=True)
-    sharesOutstanding = (info['sharesOutstanding'])
-    last_price = info['regularMarketPreviousClose']
+    res, sharesOutstanding, last_price = get_financials_with_annualized_ttm(ticker_symbol, statements=('income','cashflow','balance'), annualize_partial=True)
+    #sharesOutstanding = (info['sharesOutstanding'])
+    #last_price = info['regularMarketPreviousClose']
     total_equity = last_price * sharesOutstanding
     balance, income, cashflow = res['balance'].T, res['income'].T , res['cashflow'].T 
     debt_long = balance.loc['Long Term Debt And Capital Lease Obligation'].iloc[0]
