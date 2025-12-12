@@ -1011,7 +1011,7 @@ with tab3:
     net_debt = debt_long
 
     # Monte Carlo simulation parameters
-    st.markdown("##### Monte Carlo Analysis")
+    st.markdown("##### Analisis Monte Carlo")
     
     num_simulations = st.slider("Cantidad de Simulaciones", 1000, 10000, 5000, step=1000) if run_monte_carlo else 1000
     
@@ -1031,7 +1031,7 @@ with tab3:
     
     # Monte Carlo simulation (if enabled)
     if run_monte_carlo:
-        st.markdown("##### 🎲 Monte Carlo Simulation Results")
+        st.markdown("##### 🎲 Monte Carlo - Resultados")
         # Generate random variations for key inputs
         np.random.seed(42) # For reproducibility
         
