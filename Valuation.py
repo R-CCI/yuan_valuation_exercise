@@ -926,7 +926,7 @@ with tab1:
                 ) / 100
                 ebitda_margin_1 = ebit_margin_base
                 ebitda_margin_2 = ebit_margin_base
-                ebitda_margin_2 = ebit_margin_base
+                ebitda_margin_3 = ebit_margin_base
                 ebitda_margin_4 = ebit_margin_base
                 ebitda_margin_5 = ebit_margin_base
             else:
@@ -961,7 +961,6 @@ with tab1:
                     value=industry_data.get("ebitda_margin", 20.0) * 1.08, 
                     step=0.1
                 ) / 100
-                
                 ebitda_margin_5 = st.number_input(
                     "Margen EBIT Año 5 (%)", 
                     min_value=-20.0, 
