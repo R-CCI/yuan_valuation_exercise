@@ -911,7 +911,7 @@ with tab1:
             
         with col_margin:
             revenues = income.loc["Total Revenue"].sort_index()
-            ebit = income.loc["Operating Income"].sort_index()
+            ebit = income.loc["EBIT"].sort_index()
             ebit_margin = (ebit / revenues).dropna()
             ebit_option = st.radio('Margen EBIT', ['Fijo', 'Variable'], index=0)
             avg_ebit_margin = ebit_margin.mean()
@@ -970,44 +970,43 @@ with tab1:
                 ) / 100
 
     with col2:
-        st.markdown("#### Key Assumptions")
-        
+        st.markdown("#### Supuestos")
+        capex = balance.loc["Net PPE"].sort_index().sort_index().diff()
+        capex_pct = (capex / revenues).dropna()
         # Capital expenditure and depreciation
+        st.write(f'Promedio de % CAPEX (últimos 3 años): {capex_pct.mean()*100:.2f}%')
         capex_revenue_ratio = st.number_input(
             "CapEx as % of Revenue", 
             min_value=0.0, 
             max_value=30.0, 
             value=industry_data.get("capex_rev", 8.0), 
-            step=0.1,
-            help="Capital expenditures as percentage of revenue"
+            step=0.1
         ) / 100
-        
+
+        dpa = income.loc['EBITDA'] - income.loc['EBIT'] 
+        dpa_pct = (dpa / revenues).dropna()
+        st.write(f'Promedio de % Depreciación y Amortización (últimos 3 años): {dpa_pct.mean()*100:.2f}%')
         depreciation_revenue_ratio = st.number_input(
-            "Depreciation as % of Revenue", 
+            "% de Depreciación y Amortización", 
             min_value=0.0, 
             max_value=20.0, 
             value=industry_data.get("depreciation_rev", 6.0), 
-            step=0.1,
-            help="Depreciation expense as percentage of revenue"
+            step=0.1
         ) / 100
-        
+
+
+        nwc = balance.loc["Working Capital"].sort_index().sort_index().diff()
+        nwc_pct = (nwc / revenues).dropna()
+        st.write(f'Promedio de % NWC (últimos 3 años): {nwc_pct.mean()*100:.2f}%')
         working_capital_change_ratio = st.number_input(
-            "Working Capital Change as % of Revenue", 
+            "Cambios en el CaPital de Trabajo (NWC)", 
             min_value=-10.0, 
             max_value=15.0, 
             value=industry_data.get("wc_change_rev", 3.0), 
-            step=0.1,
-            help="Annual change in working capital as % of revenue growth"
+            step=0.1
         ) / 100
         
-        terminal_growth_rate = st.number_input(
-            "Terminal Growth Rate (%)", 
-            min_value=0.0, 
-            max_value=5.0, 
-            value=2.5, 
-            step=0.1,
-            help="Long-term perpetual growth rate (typically GDP growth)"
-        ) / 100
+        terminal_growth_rate = tgr
 
 with tab2:
     # Calculate projected financials
