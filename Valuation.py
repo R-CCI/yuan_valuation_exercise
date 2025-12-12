@@ -790,11 +790,11 @@ with st.sidebar:
     st.write(f'% Equity: {equity_ratio*100:,.2f}%')
     st.write(f'Acciones en circulación: {sharesOutstanding:,.0f}')
 # Calculate enhanced metrics
-debt_ratio = 100 - equity_ratio
+debt_ratio = 1 - equity_ratio
 currency_symbol = {"India": "₹", "USA": "$", "UK": "£", "Germany": "€", "France": "€"}.get(country, "₹")
 levered_beta = beta * (1+(1-tax_rate)*(debt_long/total_equity))
 cost_of_equity = risk_free_rate + (levered_beta) * (market_risk_premium-risk_free_rate)
-wacc = (equity_ratio / 100) * cost_of_equity + (debt_ratio / 100) * cost_of_debt * (1 - tax_rate)
+wacc = (equity_ratio) * cost_of_equity + (debt_ratio) * cost_of_debt * (1 - tax_rate)
 current_revenue = income.loc['Total Revenue'].iloc[0]     
 # Enhanced WACC display
 st.markdown("### 📊 Cost of Capital Analysis")
@@ -1053,7 +1053,7 @@ with tab2:
     
     projections_df = pd.DataFrame({
         'Year': years,
-        f'Revenue ({currency_symbol}M)': [f"{rev:.,1f}" for rev in revenue_projections],
+        f'Revenue ({currency_symbol}M)': [f"{rev:,.1f}" for rev in revenue_projections],
         f'EBITDA ({currency_symbol}M)': [f"{ebitda:,.1f}" for ebitda in ebitda_projections],
         'EBITDA Margin (%)': [f"{margin*100:.,1f}%" for margin in ebitda_margins],
         f'Free Cash Flow ({currency_symbol}M)': [f"{fcf:,.1f}" for fcf in fcf_projections],
