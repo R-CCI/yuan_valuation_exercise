@@ -800,7 +800,7 @@ with tab1:
                 for year in range(1, int(num_years_financial_core) + 1):
                     default_growth_factor = 1 + (year - 1) * -0.05  # 2.5% yearly increase just like your pattern
                     revenue_growth_i = st.number_input(
-                    f"Margen EBIT Año {year} (%)",
+                    f"Crecimiento de los Ingresos Esperados Año {year} (%)",
                     min_value=-20.0,
                     max_value=60.0,
                     value=50 * default_growth_factor,
