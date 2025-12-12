@@ -1584,27 +1584,6 @@ with tab4:
     
     st.plotly_chart(fig_bridge, use_container_width=True)
     
-# Footer with disclaimer
-st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
-
-st.markdown("""
-<div style='background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); padding: 2rem; border-radius: 15px; margin: 2rem 0; text-align: center; border: 1px solid #e2e8f0;'>
-    <h4 style='color: #374151; margin-bottom: 1rem;'>⚖️ Important Disclaimer</h4>
-    <p style='color: #6b7280; margin: 0; line-height: 1.6;'>
-        <strong>This DCF valuation model is designed for educational and analytical purposes only.</strong><br>
-        The projections, assumptions, and valuations presented here should not be considered as investment advice or recommendations. 
-        All financial models involve inherent uncertainties and risks. Past performance does not guarantee future results.<br>
-        <em>Please consult with qualified financial professionals before making investment decisions.</em>
-    </p>
-    <div style='margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #d1d5db;'>
-        <small style='color: #9ca3af;'>
-            © 2025 Investment Banking DCF Model | Built with Streamlit | 
-            <a href="#" style='color: #4f46e5;'>Documentation</a> | 
-            <a href="#" style='color: #4f46e5;'>Support</a>
-        </small>
-    </div>
-</div>
-""", unsafe_allow_html=True)
 
 # Interactive 3D DCF Visualization
 with st.expander("🎯 Interactive 3D DCF Model Visualization", expanded=True):
