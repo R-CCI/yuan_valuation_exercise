@@ -999,7 +999,7 @@ with tab1:
         nwc_pct = (nwc / revenues).dropna()
         st.write(f'Promedio de % NWC (últimos 3 años): {nwc_pct.mean()*100:.2f}%')
         working_capital_change_ratio = st.number_input(
-            "Cambios en el CaPital de Trabajo (NWC)", 
+            "Cambios en el Capital de Trabajo (NWC)", 
             min_value=-10.0, 
             max_value=15.0, 
             value=industry_data.get("wc_change_rev", 3.0), 
@@ -1102,20 +1102,9 @@ with tab3:
     col1, col2 = st.columns(2)
     
     with col1:
-        shares_outstanding = st.number_input(
-            "Shares Outstanding (Millions)", 
-            min_value=0.1, 
-            value=10.0, 
-            step=1.0,
-            help="Current number of shares outstanding"
-        )
+        shares_outstanding = sharesOustanding
         
-        net_debt = st.number_input(
-            f"Net Debt ({currency_symbol} Millions)", 
-            value=10.0, 
-            step=10.0,
-            help="Total debt minus cash and equivalents"
-        )
+        net_debt = debt_long
     
     with col2:
         # Monte Carlo simulation parameters
