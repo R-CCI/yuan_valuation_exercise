@@ -1634,8 +1634,8 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                 colorscale=[[0, 'rgba(0,50,120,0.4)'], [1, 'rgba(0,100,200,0.6)']],  # Enhanced deeper blues
                 showscale=False,
                 opacity=0.5,  # Increased opacity
-                name='Current Market Price',
-                hovertemplate=f'Market Price: {format_currency(current_market_price, currency_symbol)}<extra></extra>'
+                name='Simulaciones',
+                hovertemplate=f'Valor de la acción : {format_currency(current_market_price, currency_symbol)}<extra></extra>'
             ))
             
             # Add base case point with enhanced styling
@@ -1651,7 +1651,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                     line=dict(color='white', width=3),
                     opacity=1.0
                 ),
-                name='Base Case DCF',
+                name='Escenario Base',
                 text=[f'<b>Escenario Base</b><br>WACC: {wacc*100:.2f}%<br>Terminal Growth: {terminal_growth_rate*100:.2f}%<br>Value: {format_currency(value_per_share, currency_symbol)}'],
                 hovertemplate='%{text}<extra></extra>'
             ))
@@ -1670,7 +1670,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                         tickfont=dict(color='white', size=11)
                     ),
                     yaxis=dict(
-                        title=dict(text='Terminal Growth Rate (%)', font=dict(size=14, color='white')),
+                        title=dict(text='Crecimiento del Valor Terminal (%)', font=dict(size=14, color='white')),
                         range=[terminal_min * 100, terminal_max * 100],
                         showgrid=True,
                         gridcolor='rgba(100,150,200,0.3)',  # Enhanced blue grid
