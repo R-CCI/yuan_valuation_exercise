@@ -1554,8 +1554,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
         # Sample points for visualization with better distribution
         sample_size = min(500, len(simulation_results))
         sample_indices = np.random.choice(len(simulation_results), sample_size, replace=False)
-        sample_values = np.array([dcf(w, tg) / sharesOutstanding
-                          for w, tg in zip(wacc_scatter, terminal_scatter)])
+        sample_values = [simulation_results[i] for i in sample_indices]
         
         # Create more spread out variations for better visualization
         wacc_min, wacc_max = wacc * 0.7, wacc * 1.3
@@ -1569,7 +1568,8 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
         valid_indices = wacc_scatter > terminal_scatter
         wacc_scatter = wacc_scatter[valid_indices]
         terminal_scatter = terminal_scatter[valid_indices]
-        sample_values = [sample_values[i] for i, valid in enumerate(valid_indices) if valid]
+        sample_values = np.array([dcf(w, tg) / sharesOutstanding
+                          for w, tg in zip(wacc_scatter, terminal_scatter)])
         
         # Ensure we have valid data
         if len(sample_values) > 0 and len(wacc_scatter) > 0:
