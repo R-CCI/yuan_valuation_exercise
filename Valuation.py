@@ -788,6 +788,7 @@ with st.sidebar:
     st.write(f'Equity: {total_equity:,.2f}')
     equity_ratio = total_equity/(total_equity+debt_long)
     st.write(f'% Equity: {equity_ratio*100:,.2f}%')
+    st.write(f'Acciones en circulación: {sharesOutstanding:,.0f}%')
 # Calculate enhanced metrics
 debt_ratio = 100 - equity_ratio
 currency_symbol = {"India": "₹", "USA": "$", "UK": "£", "Germany": "€", "France": "€"}.get(country, "₹")
