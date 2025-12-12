@@ -786,7 +786,7 @@ with st.sidebar:
     debt_long = balance.loc['Long Term Debt And Capital Lease Obligation'].iloc[0]
     st.write(f'Deuda: {debt_long:,.2f}')
     st.write(f'Equity: {total_equity:,.2f}')
-
+    equity_ratio = total_equity/(total_equity+debt_long)
 # Calculate enhanced metrics
 debt_ratio = 100 - equity_ratio
 currency_symbol = {"India": "₹", "USA": "$", "UK": "£", "Germany": "€", "France": "€"}.get(country, "₹")
