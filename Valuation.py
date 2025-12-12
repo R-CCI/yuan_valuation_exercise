@@ -1195,64 +1195,7 @@ with tab4:
     #    help="Current trading price per share"
     #)
     
-    # Determine recommendation
-#    if run_monte_carlo and simulation_results:
- #       base_case_value = percentiles[2]  # Median from Monte Carlo
-  #      upside_potential = (base_case_value - current_market_price) / current_market_price
-  #  else:
-   #     base_case_value = value_per_share
-    #    upside_potential = (value_per_share - current_market_price) / current_market_price
-    
-   # if upside_potential > 0.20:
-    #    recommendation = "🟢 STRONG BUY"
-    #    rec_color = "#16a34a"
-    #elif upside_potential > 0.10:
-    #    recommendation = "🟢 BUY" 
-    #    rec_color = "#22c55e"
-    #elif upside_potential > -0.10:
-    #    recommendation = "🟡 HOLD"
-    #    rec_color = "#eab308"
-    #elif upside_potential > -0.25:
-    #    recommendation = "🔴 SELL"
-    #    rec_color = "#ef4444"
-    #else:
-    #   recommendation = "🔴 STRONG SELL"
-    #  rec_color = "#dc2626"
-    
-    # Executive Summary
-    st.markdown(f"""
-    <div class="executive-summary">
-        <h2 style='margin-top: 0;'>🏛️ Executive Summary - {ticker_symbol}</h2>
-        <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin: 2rem 0;'>
-            <div>
-                <h4>Investment Thesis</h4>
-                <p>{ticker_symbol} operates in the {industry.lower()} sector with {"strong" if upside_potential > 0.1 else "moderate" if upside_potential > -0.1 else "weak"} financial fundamentals and {"attractive" if upside_potential > 0 else "limited"} growth prospects.</p>
-            </div>
-            <div>
-                <h4>Key Financial Metrics</h4>
-                <p>• Revenue CAGR: {ratios.get('revenue_cagr', 0)*100:.1f}%<br>
-                • Avg EBITDA Margin: {ratios.get('avg_ebitda_margin', 0)*100:.1f}%<br>
-                • FCF Margin: {ratios.get('avg_fcf_margin', 0)*100:.1f}%</p>
-            </div>
-            <div>
-                <h4>Valuation Metrics</h4>
-                <p>• Intrinsic Value: {format_currency(base_case_value, currency_symbol)}<br>
-                • Current Price: {format_currency(current_market_price, currency_symbol)}<br>
-                • Upside Potential: {upside_potential*100:.1f}%</p>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Investment recommendation
-    st.markdown(f"""
-    <div class="recommendation-box" style='background: linear-gradient(135deg, {rec_color}, {rec_color}88);'>
-        <h2 style='margin: 0; font-size: 2.5rem;'>{recommendation}</h2>
-        <h3 style='margin: 1rem 0;'>Target Price: {format_currency(base_case_value, currency_symbol)}</h3>
-        <p style='margin: 0; font-size: 1.1rem;'>Upside Potential: {upside_potential*100:.1f}%</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
+
     # Risk assessment
     st.markdown(f"""
     <div class="risk-analysis">
