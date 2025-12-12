@@ -1008,98 +1008,115 @@ with tab3:
         run_monte_carlo = st.checkbox("Enable Monte Carlo Simulation", value=True)
         num_simulations = st.slider("Number of Simulations", 1000, 10000, 5000, step=1000) if run_monte_carlo else 1000
     
-    # DCF Calculation
-    discount_factors = [(1 + wacc) ** i for i in range(1, 6)]
+    fcf_projections = []
+    sim_revenue = current_revenue
+    for j in range(num_years):
+        rev_growth = revenue_growth_rates[j]
+        ebitda_margin = ebitda_margins_list[j]
+        sim_revenue = sim_revenue * (1 + rev_growth) if j > 0 else sim_revenue * (1 + rev_growth)  # consistent compounding
+        ebitda = sim_revenue * ebitda_margin
+        depreciation = sim_revenue * depreciation_revenue_ratio
+        ebit = ebitda - depreciation
+        taxes = ebit * tax_rate if ebit > 0 else 0
+        nopat = ebit - taxes
+        capex = sim_revenue * capex_revenue_ratio
+        wc_change = sim_revenue * rev_growth * working_capital_change_ratio if j > 0 else 0
+        fcf = nopat + depreciation - capex - wc_change
+        fcf_projections.append(fcf)
+    
+    # Discount factors based on num_years
+    discount_factors = [(1 + wacc) ** i for i in range(1, num_years + 1)]
     pv_fcf = [fcf / df for fcf, df in zip(fcf_projections, discount_factors)]
     
-    # Terminal value calculation
+    # Terminal value (uses last projection and num_years)
     terminal_fcf = fcf_projections[-1] * (1 + terminal_growth_rate)
-    terminal_value = terminal_fcf / (wacc - terminal_growth_rate)
-    pv_terminal_value = terminal_value / discount_factors[-1]
+    # Protect against bad terminal calc
+    if wacc - terminal_growth_rate <= 1e-6:
+        terminal_value = np.nan
+    else:
+        terminal_value = terminal_fcf / (wacc - terminal_growth_rate)
     
-    # Enterprise and equity value
-    enterprise_value = sum(pv_fcf) + pv_terminal_value
+    pv_terminal_value = terminal_value / discount_factors[-1] if not np.isnan(terminal_value) else np.nan
+    
+    enterprise_value = np.nansum(pv_fcf) + (pv_terminal_value if not np.isnan(pv_terminal_value) else 0)
     equity_value = enterprise_value - debt_long + cash
-    value_per_share = equity_value / shares_outstanding
+    value_per_share = equity_value / shares_outstanding if shares_outstanding else np.nan
     
-    # Monte Carlo simulation (if enabled)
+    # Keep a deterministic baseline value too (for UI)
+    value_per_share_base = value_per_share
+    
+    # === Monte Carlo simulation (dynamic) ===
     if run_monte_carlo:
         st.markdown("##### 🎲 Monte Carlo Simulation Results")
-        
-        # Generate random variations for key inputs
-        np.random.seed(42)  # For reproducibility
-        
-        # Create distributions for key variables
-        wacc_dist = np.random.normal(wacc, wacc * 0.15, num_simulations)  # 15% std dev
-        terminal_growth_dist = np.random.normal(terminal_growth_rate, terminal_growth_rate * 0.3, num_simulations)
-        
-        # Revenue growth distributions
-        rev_growth_dist = []
-        for growth in revenue_growth_rates:
-            rev_growth_dist.append(np.random.normal(growth, abs(growth) * 0.25, num_simulations))
-        
-        # EBITDA margin distributions
-        ebitda_margin_dist = []
-        for margin in ebitda_margins:
-            ebitda_margin_dist.append(np.random.normal(margin, margin * 0.15, num_simulations))
-        
-        # Run simulations
+        np.random.seed(42)
+    
+        # Sample distributions (constrained later)
+        wacc_dist = np.random.normal(wacc, wacc * 0.15, num_simulations)
+        terminal_growth_dist = np.random.normal(terminal_growth_rate, max(1e-6, abs(terminal_growth_rate) * 0.3), num_simulations)
+    
+        # revenue growth dist: shape (num_years, num_simulations)
+        rev_growth_dist = np.zeros((num_years, num_simulations))
+        for idx, growth in enumerate(revenue_growth_rates):
+            rev_growth_dist[idx, :] = np.random.normal(growth, abs(growth) * 0.25 if abs(growth) > 1e-6 else 0.05, num_simulations)
+    
+        # ebitda margin dist
+        ebitda_margin_dist = np.zeros((num_years, num_simulations))
+        for idx, margin in enumerate(ebitda_margins_list):
+            ebitda_margin_dist[idx, :] = np.random.normal(margin, max(1e-6, abs(margin) * 0.15), num_simulations)
+    
         simulation_results = []
-        
+    
         for i in range(num_simulations):
-            # Get random values for this simulation
-            sim_wacc = max(0.05, min(0.25, wacc_dist[i]))  # Constrain WACC between 5-25%
-            sim_terminal_growth = max(0.0, min(0.05, terminal_growth_dist[i]))  # Constrain terminal growth 0-5%
-            
-            # Calculate FCF projections for this simulation
+            sim_wacc = float(np.clip(wacc_dist[i], 0.05, 0.25))  # between 5% and 25%
+            sim_terminal_growth = float(np.clip(terminal_growth_dist[i], 0.0, 0.05))  # between 0% and 5%
+    
+            # build per-simulation FCFs
             sim_fcf = []
-            sim_revenue = current_revenue
-            
-            for j in range(5):
-                sim_rev_growth = max(-0.5, min(1.0, rev_growth_dist[j][i]))  # Constrain growth -50% to 100%
-                sim_ebitda_margin = max(0.0, min(0.6, ebitda_margin_dist[j][i]))  # Constrain margin 0-60%
-                
-                sim_revenue = sim_revenue * (1 + sim_rev_growth)
-                sim_ebitda = sim_revenue * sim_ebitda_margin
-                sim_depreciation = sim_revenue * depreciation_revenue_ratio
-                sim_ebit = sim_ebitda - sim_depreciation
+            sim_revenue_loop = current_revenue
+            for j in range(num_years):
+                sim_rev_growth = float(np.clip(rev_growth_dist[j, i], -0.5, 1.0))
+                sim_ebitda_margin = float(np.clip(ebitda_margin_dist[j, i], 0.0, 0.6))
+    
+                sim_revenue_loop = sim_revenue_loop * (1 + sim_rev_growth)
+                sim_ebitda = sim_revenue_loop * sim_ebitda_margin
+                sim_depr = sim_revenue_loop * depreciation_revenue_ratio
+                sim_ebit = sim_ebitda - sim_depr
                 sim_taxes = sim_ebit * tax_rate if sim_ebit > 0 else 0
                 sim_nopat = sim_ebit - sim_taxes
-                
-                sim_capex = sim_revenue * capex_revenue_ratio
-                sim_wc_change = sim_revenue * sim_rev_growth * working_capital_change_ratio if j > 0 else 0
-                
-                sim_fcf_year = sim_nopat + sim_depreciation - sim_capex - sim_wc_change
+                sim_capex = sim_revenue_loop * capex_revenue_ratio
+                sim_wc_change = sim_revenue_loop * sim_rev_growth * working_capital_change_ratio if j > 0 else 0
+                sim_fcf_year = sim_nopat + sim_depr - sim_capex - sim_wc_change
                 sim_fcf.append(sim_fcf_year)
-            
-            # Calculate enterprise value for this simulation
-            sim_discount_factors = [(1 + sim_wacc) ** k for k in range(1, 6)]
+    
+            # discount & terminal
+            sim_discount_factors = [(1 + sim_wacc) ** k for k in range(1, num_years + 1)]
             sim_pv_fcf = [fcf / df for fcf, df in zip(sim_fcf, sim_discount_factors)]
-            
-            if sim_wacc > sim_terminal_growth:  # Ensure valid terminal value calculation
+    
+            if sim_wacc - sim_terminal_growth > 1e-6:
                 sim_terminal_fcf = sim_fcf[-1] * (1 + sim_terminal_growth)
                 sim_terminal_value = sim_terminal_fcf / (sim_wacc - sim_terminal_growth)
                 sim_pv_terminal_value = sim_terminal_value / sim_discount_factors[-1]
-                
                 sim_enterprise_value = sum(sim_pv_fcf) + sim_pv_terminal_value
                 sim_equity_value = sim_enterprise_value - debt_long + cash
-                sim_value_per_share = sim_equity_value / shares_outstanding
-                
-                simulation_results.append(sim_value_per_share)
-        
-        # Filter out extreme outliers (beyond 3 standard deviations)
-        if simulation_results:
+                sim_value_per_share = sim_equity_value / shares_outstanding if shares_outstanding else np.nan
+                # Filter obviously nonsensical values (e.g., huge outliers)
+                if not (np.isnan(sim_value_per_share) or np.isinf(sim_value_per_share) or sim_value_per_share > 1e7 or sim_value_per_share < -1e7):
+                    simulation_results.append(sim_value_per_share)
+    
+        # post-process simulations
+        simulation_results = np.array(simulation_results) if len(simulation_results) > 0 else np.array([])
+    
+        if simulation_results.size > 0:
+            # remove extreme outliers beyond 3 std
             sim_mean = np.mean(simulation_results)
             sim_std = np.std(simulation_results)
-            simulation_results = [x for x in simulation_results if abs(x - sim_mean) <= 3 * sim_std]
-        
-        # Calculate statistics
-        if simulation_results:
+            mask = np.abs(simulation_results - sim_mean) <= 3 * sim_std
+            simulation_results = simulation_results[mask]
+    
+        # display results if any remain
+        if simulation_results.size > 0:
             percentiles = np.percentile(simulation_results, [10, 25, 50, 75, 90])
-            
-            # Display results
             col1, col2, col3 = st.columns(3)
-            
             with col1:
                 st.markdown(f"""
                 <div class="metric-card">
@@ -1107,7 +1124,6 @@ with tab3:
                     <h2 style='color: #dc2626;'>{format_currency(percentiles[0], currency_symbol)}</h2>
                 </div>
                 """, unsafe_allow_html=True)
-            
             with col2:
                 st.markdown(f"""
                 <div class="valuation-highlight">
@@ -1115,7 +1131,6 @@ with tab3:
                     <h1 style='font-size: 2rem; margin: 0;'>{format_currency(percentiles[2], currency_symbol)}</h1>
                 </div>
                 """, unsafe_allow_html=True)
-            
             with col3:
                 st.markdown(f"""
                 <div class="metric-card">
@@ -1123,10 +1138,9 @@ with tab3:
                     <h2 style='color: #16a34a;'>{format_currency(percentiles[4], currency_symbol)}</h2>
                 </div>
                 """, unsafe_allow_html=True)
-            
-            # Valuation distribution chart
+    
+            # distribution chart
             fig_dist = go.Figure()
-            
             fig_dist.add_trace(go.Histogram(
                 x=simulation_results,
                 nbinsx=50,
@@ -1134,15 +1148,14 @@ with tab3:
                 marker_color='rgba(102, 126, 234, 0.7)',
                 opacity=0.7
             ))
-            
-            # Add percentile lines
-            colors = ['#dc2626', '#ea580c', '#16a34a', '#ca8a04', '#16a34a']
-            labels = ['10th %ile (Bear)', '25th %ile', '50th %ile (Base)', '75th %ile', '90th %ile (Bull)']
-            
-            for i, (perc, color, label) in enumerate(zip(percentiles, colors, labels)):
-                fig_dist.add_vline(x=perc, line_dash="dash", line_color=color, 
-                                 annotation_text=label, annotation_position="top")
-            
+    
+            # percentile lines & annotations
+            perc_colors = ['#dc2626', '#ea580c', '#16a34a', '#ca8a04', '#16a34a']
+            perc_labels = ['10th %ile (Bear)', '25th %ile', '50th %ile (Base)', '75th %ile', '90th %ile (Bull)']
+            for p, c, lab in zip(percentiles, perc_colors, perc_labels):
+                fig_dist.add_vline(x=p, line_dash="dash", line_color=c,
+                                    annotation_text=lab, annotation_position="top")
+    
             fig_dist.update_layout(
                 title="Monte Carlo Valuation Distribution",
                 xaxis_title=f"Value Per Share ({currency_symbol})",
@@ -1151,48 +1164,50 @@ with tab3:
                 height=400,
                 showlegend=False
             )
-            
             st.plotly_chart(fig_dist, use_container_width=True)
-            
-            # Summary statistics
+    
+            # Summary stats
             st.markdown("##### 📊 Statistical Summary")
             stats_df = pd.DataFrame({
                 'Metric': ['Mean', 'Standard Deviation', 'Coefficient of Variation', 'Probability of Positive Value'],
                 'Value': [
                     format_currency(np.mean(simulation_results), currency_symbol),
                     format_currency(np.std(simulation_results), currency_symbol),
-                    f"{np.std(simulation_results)/np.mean(simulation_results)*100:.1f}%",
-                    f"{len([x for x in simulation_results if x > 0])/len(simulation_results)*100:.1f}%"
+                    f"{(np.std(simulation_results)/np.mean(simulation_results)*100) if np.mean(simulation_results)!=0 else 0:.1f}%",
+                    f"{len(simulation_results[simulation_results > 0]) / len(simulation_results) * 100:.1f}%"
                 ]
             })
             st.dataframe(stats_df, use_container_width=True, hide_index=True)
     
+        else:
+            st.warning("No valid Monte Carlo simulation results to display after filtering.")
+    
     else:
-        # Simple deterministic valuation
+        # Deterministic display (no change other than dynamic num_years)
         st.markdown(f"""
         <div class="executive-summary">
             <h3 style='margin-top: 0;'>🏛️ DCF Valuation Summary</h3>
             <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 2rem;'>
                 <div>
-                    <h4>Present Value of FCF (Years 1-5)(In millions)</h4>
+                    <h4>Present Value of FCF (Years 1-{num_years})(In currency)</h4>
                     <h2>{format_currency(sum(pv_fcf), currency_symbol)}</h2>
                 </div>
                 <div>
-                    <h4>Present Value of Terminal Value (In millions)</h4>
-                    <h2>{format_currency(pv_terminal_value, currency_symbol)}</h2>
+                    <h4>Present Value of Terminal Value (In currency)</h4>
+                    <h2>{format_currency(pv_terminal_value if not np.isnan(pv_terminal_value) else 0, currency_symbol)}</h2>
                 </div>
                 <div>
-                    <h4>Enterprise Value (In millions)</h4>
+                    <h4>Enterprise Value (In currency)</h4>
                     <h2>{format_currency(enterprise_value, currency_symbol)}</h2>
                 </div>
                 <div>
-                    <h4>Equity Value(In millions)</h4>
+                    <h4>Equity Value (In currency)</h4>
                     <h2>{format_currency(equity_value, currency_symbol)}</h2>
                 </div>
             </div>
         </div>
         """, unsafe_allow_html=True)
-        
+    
         st.markdown(f"""
         <div class="valuation-highlight">
             <h2 style='margin: 0;'>Intrinsic Value Per Share</h2>
@@ -1200,36 +1215,34 @@ with tab3:
             <p style='margin: 0; opacity: 0.9;'>Based on DCF Analysis</p>
         </div>
         """, unsafe_allow_html=True)
-
-    # Sensitivity analysis
+    
+    # === Sensitivity analysis (dynamic num_years) ===
     st.markdown("##### 🌡️ Sensitivity Analysis")
     
-    # WACC sensitivity range
     wacc_range = np.linspace(wacc * 0.7, wacc * 1.3, 11)
     terminal_range = np.linspace(terminal_growth_rate * 0.5, min(terminal_growth_rate * 2, 0.05), 11)
     
-    # Create sensitivity matrix
     sensitivity_matrix = []
     for w in wacc_range:
         row = []
         for tg in terminal_range:
-            if w > tg:  # Ensure valid calculation
+            if w - tg > 1e-6:
                 sens_terminal_fcf = fcf_projections[-1] * (1 + tg)
                 sens_terminal_value = sens_terminal_fcf / (w - tg)
-                sens_pv_terminal_value = sens_terminal_value / ((1 + w) ** 5)
-                sens_enterprise_value = sum([fcf / ((1 + w) ** i) for i, fcf in enumerate(fcf_projections, 1)]) + sens_pv_terminal_value
+                sens_pv_terminal_value = sens_terminal_value / ((1 + w) ** num_years)
+                sens_pv_fcf_sum = sum([fcf / ((1 + w) ** i) for i, fcf in enumerate(fcf_projections, 1)])
+                sens_enterprise_value = sens_pv_fcf_sum + sens_pv_terminal_value
                 sens_equity_value = sens_enterprise_value - debt_long + cash
-                sens_value_per_share = sens_equity_value / shares_outstanding
+                sens_value_per_share = sens_equity_value / shares_outstanding if shares_outstanding else np.nan
                 row.append(sens_value_per_share)
             else:
                 row.append(np.nan)
         sensitivity_matrix.append(row)
     
-    # Create sensitivity heatmap
     fig_sens = go.Figure(data=go.Heatmap(
         z=sensitivity_matrix,
-        x=[f"{tg*100:.1f}%" for tg in terminal_range],
-        y=[f"{w*100:.1f}%" for w in wacc_range],
+        x=[f"{tg*100:.2f}%" for tg in terminal_range],
+        y=[f"{w*100:.2f}%" for w in wacc_range],
         colorscale='RdYlGn',
         text=[[format_currency(val, currency_symbol) if not np.isnan(val) else 'N/A' for val in row] for row in sensitivity_matrix],
         texttemplate="%{text}",
@@ -1239,14 +1252,13 @@ with tab3:
     ))
     
     fig_sens.update_layout(
-        title="Análisis de Sesnibilidad: WACC vs Valor Terminal",
-        xaxis_title="Valor Terminal",
+        title=f"Análisis de Sensibilidad: WACC vs Valor Terminal (Proyección {num_years} años)",
+        xaxis_title="Terminal Growth Rate",
         yaxis_title="WACC",
         height=500
     )
-    
-    st.plotly_chart(fig_sens, use_container_width=True)
 
+st.plotly_chart(fig_sens, use_container_width=True)
 with tab4:
     st.markdown("### 📋 Executive Investment Report")
     
