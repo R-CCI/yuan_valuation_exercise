@@ -1643,7 +1643,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                     opacity=1.0
                 ),
                 name='Base Case DCF',
-                text=[f'<b>Base Case DCF</b><br>WACC: {wacc*100:.2f}%<br>Terminal Growth: {terminal_growth_rate*100:.2f}%<br>Value: {format_currency(value_per_share, currency_symbol)}'],
+                text=[f'<b>Escenario Base</b><br>WACC: {wacc*100:.2f}%<br>Terminal Growth: {terminal_growth_rate*100:.2f}%<br>Value: {format_currency(value_per_share, currency_symbol)}'],
                 hovertemplate='%{text}<extra></extra>'
             ))
             
@@ -1671,7 +1671,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                         tickfont=dict(color='white', size=11)
                     ),
                     zaxis=dict(
-                        title=dict(text=f'Value per Share ({currency_symbol})', font=dict(size=14, color='white')),
+                        title=dict(text=f'Valor por Acción ({currency_symbol})', font=dict(size=14, color='white')),
                         showgrid=True,
                         gridcolor='rgba(100,150,200,0.3)',  # Enhanced blue grid
                         gridwidth=2,
@@ -1725,7 +1725,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
 try:
     # Calculate surface with optimal resolution
     wacc_range = np.linspace(wacc * 0.7, wacc * 1.3, 30)
-    terminal_range = np.linspace(terminal_growth_rate * 0.7, terminal_growth_rate * 1.3, 30)
+    terminal_range = np.linspace(0.01, 0.18, 30)
 
     # Create meshgrid for surface
     wacc_mesh, terminal_mesh = np.meshgrid(wacc_range, terminal_range)
