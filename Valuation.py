@@ -1054,7 +1054,7 @@ with tab2:
         f'EBITDA ({currency_symbol}M)': [f"{ebitda:,.1f}" for ebitda in ebitda_projections],
         'EBITDA Margin (%)': [f"{margin*100:,.1f}%" for margin in ebitda_margins],
         f'Free Cash Flow ({currency_symbol}M)': [f"{fcf:,.1f}" for fcf in fcf_projections],
-        'Revenue Growth (%)': [f"{growth*100:.,1f}%" for growth in revenue_growth_rates]
+        'Revenue Growth (%)': [f"{growth*100:,.1f}%" for growth in revenue_growth_rates]
     })
     
     st.dataframe(projections_df, use_container_width=True)
