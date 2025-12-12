@@ -1508,7 +1508,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                           for w, tg in zip(wacc_scatter, terminal_scatter)])
         fig_dist = go.Figure()
         fig_dist.add_trace(go.Histogram(
-                x=simulation_results,
+                x=sample_values,
                 nbinsx=50,
                 name='Valuation Distribution',
                 marker_color='rgba(102, 126, 234, 0.7)',
