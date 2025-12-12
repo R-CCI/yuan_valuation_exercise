@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import plotly.express as px
-import plotly.graph_objects as gooctagon
+import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from datetime import datetime, date
 import io
