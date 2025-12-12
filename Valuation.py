@@ -1379,13 +1379,13 @@ with tab4:
     risk_assessment, risk_color = determine_risk_level(beta, industry, debt_ratio, fcf_volatility)
     
     # Investment recommendation logic
-    current_market_price = st.number_input(
-        f"Current Market Price ({currency_symbol})", 
-        min_value=0.1, 
-        value=float(value_per_share * 0.9), 
-        step=0.01,
-        help="Current trading price per share"
-    )
+    current_market_price = last_price #current_market_price = st.number_input(
+    #    f"Current Market Price ({currency_symbol})", 
+    #    min_value=0.1, 
+    #    value=float(value_per_share * 0.9), 
+    #    step=0.01,
+    #    help="Current trading price per share"
+    #)
     
     # Determine recommendation
     if run_monte_carlo and simulation_results:
