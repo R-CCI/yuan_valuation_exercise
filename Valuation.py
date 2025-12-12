@@ -11,6 +11,59 @@ from plotly.subplots import make_subplots
 from datetime import datetime, date
 import io
 import base64
+import streamlit as st
+import tempfile
+import pandas as pd
+import numpy as np
+from langchain_community.document_loaders import PyPDFLoader
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.vectorstores import FAISS
+from sentence_transformers import SentenceTransformer
+import json
+import duckdb
+import asyncio
+import nest_asyncio
+from datetime import datetime, timedelta
+from pydantic_ai import Agent
+from pydantic_ai.models.openai import OpenAIModel, OpenAIModelSettings
+import sys
+import io
+import os
+import plotly.express as px
+from PIL import Image
+import base64
+from rich.prompt import Prompt
+from langchain_community.chat_models import ChatOpenAI
+from langchain import PromptTemplate
+from langchain.chains import LLMChain, SimpleSequentialChain
+from langchain.schema import HumanMessage
+import requests
+import time
+import random
+import ast
+import re
+from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
+from reportlab.lib.pagesizes import letter
+import ssl, certifi
+ssl._create_default_https_context = ssl._create_unverified_context
+from reportlab.pdfgen import canvas
+import textwrap
+from fpdf import FPDF
+from PIL import Image
+#import pytesseract  # for OCR on images
+import pdfplumber
+import pandas as pd
+import numpy as np
+from langchain_core.prompts import PromptTemplate
+from langchain.chains import LLMChain
+from langchain.embeddings.openai import OpenAIEmbeddings
+from langchain.vectorstores import FAISS
+import pdfplumber
+import yfinance as yf
+import yahooquery as yq
+import subprocess
+from scipy.stats import beta, triang, lognorm, norm, truncnorm, uniform
 
 # Page configuration
 try:
