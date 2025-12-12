@@ -791,10 +791,10 @@ with st.sidebar:
 # Calculate enhanced metrics
 debt_ratio = 100 - equity_ratio
 currency_symbol = {"India": "₹", "USA": "$", "UK": "£", "Germany": "€", "France": "€"}.get(country, "₹")
-
-cost_of_equity = risk_free_rate + beta * market_risk_premium
+levered_beta = beta * (1+(1-tax_rate)*(debt_long/total_equity))
+cost_of_equity = risk_free_rate + (levered_beta) * (market_risk_premium-risk_free_rate)
 wacc = (equity_ratio / 100) * cost_of_equity + (debt_ratio / 100) * cost_of_debt * (1 - tax_rate)
-
+current_revenue = income.loc['Total Revenue'].iloc[0]     
 # Enhanced WACC display
 st.markdown("### 📊 Cost of Capital Analysis")
 
@@ -838,7 +838,7 @@ with col4:
 st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
 # Main Financial Inputs
-st.markdown("### 📈 Financial Projections & Analysis")
+st.markdown("### 📈 Proyecciones Financieras")
 
 tab1, tab2, tab3, tab4 = st.tabs(["📊 Core Financials", "💰 Cash Flow", "🎯 Valuation", "📋 Report"])
 
@@ -851,55 +851,62 @@ with tab1:
         # Get industry defaults
         industry_data = INDUSTRY_BENCHMARKS[industry] if use_industry_defaults else {}
         
-        current_revenue = st.number_input(
-            f"Current Revenue ({currency_symbol} Millions)", 
-            min_value=0.1, 
-            value=1000.0, 
-            step=10.0,
-            help="Latest twelve months (LTM) revenue"
-        )
+        st.write(f'Ingresos Actuales: {current_revenue:,.2f}')
         
         col_growth, col_margin = st.columns(2)
         with col_growth:
-            revenue_growth_1 = st.number_input(
-                "Year 1 Revenue Growth (%)", 
-                min_value=-50.0, 
-                max_value=100.0, 
-                value=industry_data.get("typical_growth_high", 15.0), 
-                step=0.1
-            ) / 100
-            
-            revenue_growth_2 = st.number_input(
-                "Year 2 Revenue Growth (%)", 
-                min_value=-50.0, 
-                max_value=100.0, 
-                value=industry_data.get("typical_growth_high", 15.0) * 0.8, 
-                step=0.1
-            ) / 100
-            
-            revenue_growth_3 = st.number_input(
-                "Year 3 Revenue Growth (%)", 
-                min_value=-50.0, 
-                max_value=100.0, 
-                value=industry_data.get("typical_growth_high", 15.0) * 0.6, 
-                step=0.1
-            ) / 100
-            
-            revenue_growth_4 = st.number_input(
-                "Year 4 Revenue Growth (%)", 
-                min_value=-50.0, 
-                max_value=100.0, 
-                value=industry_data.get("typical_growth_mature", 8.0), 
-                step=0.1
-            ) / 100
-            
-            revenue_growth_5 = st.number_input(
-                "Year 5 Revenue Growth (%)", 
-                min_value=-50.0, 
-                max_value=100.0, 
-                value=industry_data.get("typical_growth_mature", 5.0), 
-                step=0.1
-            ) / 100
+            revenue_opton = st.radio('Crecimiento de los Ingresos', ['Fijo', 'Variable'], index=0)
+            avg_rev_growth = np.log(1+income.loc['Total Revenue'].sort_index().pct_change(fill_method=None)).mean()
+            st.write(f'Promedio de Crecimiento de los Ingresos: {avg_rev_growth*100:.2f}')
+            if revenue_opton == 'Fijo':
+                revenue_growth = st.number_input(
+                    "Crecimiento de los Ingresos Esperados (%)", 
+                    min_value=-50.0, 
+                    max_value=100.0, 
+                    value=industry_data.get("typical_growth_high", 15.0), 
+                    step=0.1
+                ) / 100
+                revenue_growth_1 = revenue_growth
+                revenue_growth_2 = revenue_growth
+                revenue_growth_3 = revenue_growth
+                revenue_growth_4 = revenue_growth
+                revenue_growth_5 = revenue_growth 
+            else:
+                revenue_growth_1 = st.number_input(
+                    "Crecimiento de los Ingresos Año 1 (%)", 
+                    min_value=-50.0, 
+                    max_value=100.0, 
+                    value=industry_data.get("typical_growth_high", 15.0), 
+                    step=0.1
+                ) / 100
+                revenue_growth_2 = st.number_input(
+                    "Crecimiento de los Ingresos Año 2 (%)", 
+                    min_value=-50.0, 
+                    max_value=100.0, 
+                    value=industry_data.get("typical_growth_high", 15.0), 
+                    step=0.1
+                ) / 100
+                revenue_growth_3 = st.number_input(
+                    "Crecimiento de los Ingresos Año 3 (%)", 
+                    min_value=-50.0, 
+                    max_value=100.0, 
+                    value=industry_data.get("typical_growth_high", 15.0), 
+                    step=0.1
+                ) / 100
+                revenue_growth_4 = st.number_input(
+                    "Crecimiento de los Ingresos Año 4 (%)", 
+                    min_value=-50.0, 
+                    max_value=100.0, 
+                    value=industry_data.get("typical_growth_high", 15.0), 
+                    step=0.1
+                ) / 100
+                revenue_growth_5 = st.number_input(
+                    "Crecimiento de los Ingresos Año 5 (%)", 
+                    min_value=-50.0, 
+                    max_value=100.0, 
+                    value=industry_data.get("typical_growth_high", 15.0), 
+                    step=0.1
+                ) / 100
             
         with col_margin:
             ebitda_margin_1 = st.number_input(
