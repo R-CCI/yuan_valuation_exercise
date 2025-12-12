@@ -1759,11 +1759,29 @@ try:
             line=dict(color='white', width=3),
             opacity=1.0
         ),
-        name=f'Base Case: {format_currency(value_per_share, currency_symbol)}',
-        hovertemplate='<b>Base Case DCF</b><br>' +
+        name=f'Escenario Base: {format_currency(value_per_share_base, currency_symbol)}',
+        hovertemplate='<b>Escenario Base DCF</b><br>' +
                       f'WACC: {wacc*100:.2f}%<br>' +
                       f'Crecimiento Valor Terminal: {terminal_growth_rate*100:.2f}%<br>' +
                       f'Valor: {format_currency(value_per_share, currency_symbol)}<br>' +
+                      '<extra></extra>'
+    ))
+    
+    fig.add_trace(go.Scatter3d(
+        x=[wacc * 100],
+        y=[terminal_growth_rate * 100],
+        z=[last_price + np.max(surface_values) * 0.05],
+        mode='markers',
+        marker=dict(
+            size=15,
+            color='gold',
+            symbol='octagon',
+            line=dict(color='white', width=3),
+            opacity=1.0
+        ),
+        name=f'Precio de Mercado: {format_currency(last_price, currency_symbol)}',
+        hovertemplate='<b>Precio de Mercado</b><br>' +
+                      f'Valor: {format_currency(last_price, currency_symbol)}<br>' +
                       '<extra></extra>'
     ))
 
