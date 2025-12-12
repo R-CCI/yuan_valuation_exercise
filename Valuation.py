@@ -15,7 +15,7 @@ import base64
 # Page configuration
 try:
     st.set_page_config(
-        page_title="DCF Valuation Tool - Investment Banking Edition",
+        page_title="Valoración de Acciones",
         page_icon="💰",
         layout="wide",
         initial_sidebar_state="expanded"
@@ -228,15 +228,11 @@ def get_risk_free_rate(country):
     """Enhanced risk-free rate fetching with multiple fallback sources"""
     try:
         country_urls = {
-            "India": "https://tradingeconomics.com/india/government-bond-yield",
             "USA": "https://tradingeconomics.com/united-states/government-bond-yield", 
-            "UK": "https://tradingeconomics.com/united-kingdom/government-bond-yield",
-            "Germany": "https://tradingeconomics.com/germany/government-bond-yield",
-            "France": "https://tradingeconomics.com/france/government-bond-yield"
         }
         
         if country not in country_urls:
-            return 6.0
+            return 4.25
             
         url = country_urls[country]
         headers = {
@@ -266,7 +262,7 @@ def get_risk_free_rate(country):
         fallback_rates = {
             "India": 6.85, "USA": 4.25, "UK": 4.15, "Germany": 2.35, "France": 2.95
         }
-        return fallback_rates.get(country, 6.0)
+        return fallback_rates.get(country, 4.25)
 
 def calculate_financial_ratios(revenue, ebitda, fcf, capex, shares_outstanding):
     """Calculate comprehensive financial ratios for analysis"""
@@ -343,7 +339,7 @@ def format_currency(value, symbol):
     else:
         return f"{symbol}{value:.0f}"
 
-def generate_investment_thesis(company_name, industry, ratios, valuation_results, recommendation):
+def generate_investment_thesis(ticker_symbol, industry, ratios, valuation_results, recommendation):
     """Generate a comprehensive investment thesis"""
     
     current_date = datetime.now().strftime("%B %d, %Y")
@@ -351,7 +347,7 @@ def generate_investment_thesis(company_name, industry, ratios, valuation_results
     thesis = f"""
 # 🏛️ INVESTMENT THESIS & VALUATION REPORT
 
-**Company:** {company_name}  
+**Company:** {ticker_symbol}  
 **Sector:** {industry}  
 **Report Date:** {current_date}  
 **Analyst:** DCF Valuation Model  
@@ -360,7 +356,7 @@ def generate_investment_thesis(company_name, industry, ratios, valuation_results
 
 ## 📊 EXECUTIVE SUMMARY
 
-{company_name} operates in the {industry.lower()} sector and presents {'an attractive' if 'BUY' in recommendation else 'a challenging'} investment opportunity based on our comprehensive DCF analysis.
+{ticker_symbol} operates in the {industry.lower()} sector and presents {'an attractive' if 'BUY' in recommendation else 'a challenging'} investment opportunity based on our comprehensive DCF analysis.
 
 ### Key Investment Highlights:
 - **Revenue Growth:** {ratios.get('revenue_cagr', 0)*100:.1f}% CAGR projected
@@ -400,7 +396,7 @@ Our Monte Carlo DCF analysis yields the following intrinsic value estimates:
 
 ## 📈 RECOMMENDATION: {recommendation}
 
-Based on our analysis, we recommend a **{recommendation}** rating for {company_name}.
+Based on our analysis, we recommend a **{recommendation}** rating for {ticker_symbol}.
 
 *This analysis is for educational purposes only and should not be considered as investment advice.*
     """
@@ -494,30 +490,20 @@ st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 
 # Enhanced Sidebar Configuration
 with st.sidebar:
-    st.markdown("### 🏢 Company Profile")
+    st.markdown("### Parámetros")
     
-    company_name = st.text_input("Company Name", value="Example Corp", 
-                                help="Enter the target company name")
+    ticker_symbol = st.text_input("Ticker Symbol", value="NVDA", )
     
-    ticker_symbol = st.text_input("Ticker Symbol", value="EXMP", 
-                                 help="Stock ticker symbol")
-    
-    country = st.selectbox(
-        "Domicile Country", 
-        options=["India", "USA", "UK", "Germany", "France", "Other"],
-        help="Primary country of operations"
-    )
+    country = 'USA'
     
     industry = st.selectbox(
-        "Industry Classification",
-        options=list(INDUSTRY_BENCHMARKS.keys()),
-        help="GICS sector classification"
+        "Industria",
+        options=list(INDUSTRY_BENCHMARKS.keys())
     )
     
     use_industry_defaults = st.checkbox(
-        "Apply Industry Benchmarks", 
-        value=True,
-        help="Use sector-specific financial ratios"
+        "Aplicar Indicadores de Industria", 
+        value=True
     )
     
     st.markdown("---")
@@ -1193,11 +1179,11 @@ with tab4:
     # Executive Summary
     st.markdown(f"""
     <div class="executive-summary">
-        <h2 style='margin-top: 0;'>🏛️ Executive Summary - {company_name}</h2>
+        <h2 style='margin-top: 0;'>🏛️ Executive Summary - {ticker_symbol}</h2>
         <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin: 2rem 0;'>
             <div>
                 <h4>Investment Thesis</h4>
-                <p>{company_name} operates in the {industry.lower()} sector with {"strong" if upside_potential > 0.1 else "moderate" if upside_potential > -0.1 else "weak"} financial fundamentals and {"attractive" if upside_potential > 0 else "limited"} growth prospects.</p>
+                <p>{ticker_symbol} operates in the {industry.lower()} sector with {"strong" if upside_potential > 0.1 else "moderate" if upside_potential > -0.1 else "weak"} financial fundamentals and {"attractive" if upside_potential > 0 else "limited"} growth prospects.</p>
             </div>
             <div>
                 <h4>Key Financial Metrics</h4>
@@ -1259,7 +1245,7 @@ with tab4:
     
     # Generate comprehensive investment thesis
     investment_thesis = generate_investment_thesis(
-        company_name, industry, ratios, valuation_results, recommendation
+        ticker_symbol, industry, ratios, valuation_results, recommendation
     )
     
     # Display investment thesis in expandable section
@@ -1280,7 +1266,7 @@ with tab4:
             'ROIC (%)',
             'Revenue Multiple (x)'
         ],
-        f'{company_name} (Projected)': [
+        f'{ticker_symbol} (Projected)': [
             f"{ratios.get('avg_ebitda_margin', 0)*100:.1f}%",
             f"{capex_revenue_ratio*100:.1f}%",
             f"{beta:.2f}",
