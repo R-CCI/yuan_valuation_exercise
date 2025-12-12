@@ -1040,21 +1040,24 @@ with tab2:
         ebitda_projections.append(ebitda)
         fcf_projections.append(fcf)
     pv_fcf = [fcf_projections[i]/(1+wacc)**(i+1) for  i in range(5)]
+    st.write(fcf_projections[-1])
+    st.write(tgr)
+    st.write(wacc)
     pv_tv = ((fcf_projections[-1]*(1+tgr))/(wacc-tgr))/((1+wacc)**5)
     ev_base = sum(pv_fcf) + pv_tv
     st.write(f'Valor Presente de los Flujos: {sum(pv_fcf):,.2f}%')
-    st.write(f'Valor Presente del Valor Terminal: {pv_tv.sum():,.2f}%')
+    st.write(f'Valor Presente del Valor Terminal: {pv_tv:,.2f}')
     
     # Display financial projections table
     st.markdown("#### 📊 5-Year Financial Projections")
     
     projections_df = pd.DataFrame({
         'Year': years,
-        f'Revenue ({currency_symbol}M)': [f"{rev:.1f}" for rev in revenue_projections],
-        f'EBITDA ({currency_symbol}M)': [f"{ebitda:.1f}" for ebitda in ebitda_projections],
-        'EBITDA Margin (%)': [f"{margin*100:.1f}%" for margin in ebitda_margins],
-        f'Free Cash Flow ({currency_symbol}M)': [f"{fcf:.1f}" for fcf in fcf_projections],
-        'Revenue Growth (%)': [f"{growth*100:.1f}%" for growth in revenue_growth_rates]
+        f'Revenue ({currency_symbol}M)': [f"{rev:.,1f}" for rev in revenue_projections],
+        f'EBITDA ({currency_symbol}M)': [f"{ebitda:,.1f}" for ebitda in ebitda_projections],
+        'EBITDA Margin (%)': [f"{margin*100:.,1f}%" for margin in ebitda_margins],
+        f'Free Cash Flow ({currency_symbol}M)': [f"{fcf:,.1f}" for fcf in fcf_projections],
+        'Revenue Growth (%)': [f"{growth*100:.,1f}%" for growth in revenue_growth_rates]
     })
     
     st.dataframe(projections_df, use_container_width=True)
