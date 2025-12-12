@@ -992,7 +992,7 @@ with tab2:
 
 run_monte_carlo = True
 
-st.markdown("### 🌐 Análisis Sensibilidad del Valor de la Acción")
+
 
 def dcf(w, tg):
     terminal_fcf = fcf_projections[-1] * (1 + tg)
@@ -1017,7 +1017,7 @@ with tab3:
         num_simulations = st.slider("Number of Simulations", 1000, 10000, 5000, step=1000) if run_monte_carlo else 1000
     
     # DCF Calculation
-    discount_factors = [(1 + wacc) ** i for i in range(1, 6)]
+    discount_factors = [(1 + wacc) ** i for i in range(1, num_years_financial_core+1)]
     pv_fcf = [fcf / df for fcf, df in zip(fcf_projections, discount_factors)]
     
     # Terminal value calculation
@@ -1482,7 +1482,8 @@ with tab4:
     )
     
     st.plotly_chart(fig_bridge, use_container_width=True)
-    
+
+st.markdown("### 🌐 Análisis Sensibilidad del Valor de la Acción")
 # Create 3D scatter plot for Monte Carlo results
 if run_monte_carlo and simulation_results and len(simulation_results) > 100:
     try:
