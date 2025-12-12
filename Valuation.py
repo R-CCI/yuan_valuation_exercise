@@ -1289,8 +1289,8 @@ with tab3:
     ))
     
     fig_sens.update_layout(
-        title="Sensitivity Analysis: WACC vs Terminal Growth Rate",
-        xaxis_title="Terminal Growth Rate",
+        title="Análisis de Sesnibilidad: WACC vs Valor Terminal",
+        xaxis_title="Valor Terminal",
         yaxis_title="WACC",
         height=500
     )
@@ -1652,7 +1652,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                     opacity=1.0
                 ),
                 name='Escenario Base',
-                text=[f'<b>Escenario Base</b><br>WACC: {wacc*100:.2f}%<br>Terminal Growth: {terminal_growth_rate*100:.2f}%<br>Value: {format_currency(value_per_share, currency_symbol)}'],
+                text=[f'<b>Escenario Base</b><br>WACC: {wacc*100:.2f}%<br>Crecimiento del Valor Terminal: {terminal_growth_rate*100:.2f}%<br>Value: {format_currency(value_per_share, currency_symbol)}'],
                 hovertemplate='%{text}<extra></extra>'
             ))
             
@@ -1812,8 +1812,8 @@ try:
         name=f'Base Case: {format_currency(value_per_share, currency_symbol)}',
         hovertemplate='<b>Base Case DCF</b><br>' +
                       f'WACC: {wacc*100:.2f}%<br>' +
-                      f'Terminal Growth: {terminal_growth_rate*100:.2f}%<br>' +
-                      f'Value: {format_currency(value_per_share, currency_symbol)}<br>' +
+                      f'Crecimiento Valor Terminal: {terminal_growth_rate*100:.2f}%<br>' +
+                      f'Valor: {format_currency(value_per_share, currency_symbol)}<br>' +
                       '<extra></extra>'
     ))
 
@@ -1828,7 +1828,7 @@ try:
                 backgroundcolor='rgba(0,0,0,0.3)'
             ),
             yaxis=dict(
-                title=dict(text="Terminal Growth Rate (%)", font=dict(size=16, color='white')),
+                title=dict(text="Crecimiento del Valor Terminal (%)", font=dict(size=16, color='white')),
                 tickfont=dict(color='white', size=12),
                 gridcolor='rgba(255,255,255,0.2)',
                 showbackground=True,
