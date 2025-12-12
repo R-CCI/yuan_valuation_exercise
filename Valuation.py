@@ -694,7 +694,7 @@ with st.sidebar:
         step=0.5,
     ) / 100
 
-    tgr = st.number_input("Crecimiento de la Perpetuidad (%)", value=5.0, step=0.5) / 100
+    tgr = st.number_input("Crecimiento de la Perpetuidad (%)", value=10.0, step=0.5) / 100
 
     res, sharesOutstanding, last_price = get_financials_with_annualized_ttm(ticker_symbol, statements=('income','cashflow','balance'), annualize_partial=True)
     #sharesOutstanding = (info['sharesOutstanding'])
