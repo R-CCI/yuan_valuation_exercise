@@ -1091,78 +1091,6 @@ with tab3:
                 simulation_results.append(sim_value_per_share)
                 
         # Filter out extreme outliers (beyond 3 standard deviations)
-        if simulation_results:
-            sim_mean = np.mean(simulation_results)
-            sim_std = np.std(simulation_results)
-            simulation_results = [x for x in simulation_results if abs(x - sim_mean) <= 3 * sim_std]
-            
-        # Calculate statistics
-        if simulation_results:
-            percentiles = np.percentile(simulation_results, [10, 25, 50, 75, 90])
-            
-            # Display results
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.markdown(f"""
-                <div class="metric-card">
-                <h4 style='color: #dc2626;'>🐻 Bear Case (10th %ile)</h4>
-                <h2 style='color: #dc2626;'>{format_currency(percentiles[0], currency_symbol)}</h2>
-                </div>
-                """, unsafe_allow_html=True)
-            with col2:
-                st.markdown(f"""
-                <div class="valuation-highlight">
-                <h4>🎯 Base Case (Median)</h4>
-                <h1 style='font-size: 2rem; margin: 0;'>{format_currency(percentiles[2], currency_symbol)}</h1>
-                </div>
-                """, unsafe_allow_html=True)
-            with col3:
-                st.markdown(f"""
-                <div class="metric-card">
-                <h4 style='color: #16a34a;'>🐂 Bull Case (90th %ile)</h4>
-                <h2 style='color: #16a34a;'>{format_currency(percentiles[4], currency_symbol)}</h2>
-                </div>
-                """, unsafe_allow_html=True)
-                
-            # Valuation distribution chart
-            fig_dist = go.Figure()
-            fig_dist.add_trace(go.Histogram(
-                x=simulation_results,
-                nbinsx=50,
-                name='Valuation Distribution',
-                marker_color='rgba(102, 126, 234, 0.7)',
-                opacity=0.7
-            ))
-            
-            # Add percentile lines
-            colors = ['#dc2626', '#ea580c', '#16a34a', '#ca8a04', '#16a34a']
-            labels = ['10th %ile (Bear)', '25th %ile', '50th %ile (Base)', '75th %ile', '90th %ile (Bull)']
-            for i, (perc, color, label) in enumerate(zip(percentiles, colors, labels)):
-                fig_dist.add_vline(x=perc, line_dash="dash", line_color=color, annotation_text=label, annotation_position="top")
-                
-            fig_dist.update_layout(
-                title="Monte Carlo Distribution",
-                xaxis_title=f"Value Per Share ({currency_symbol})",
-                yaxis_title="Frequency",
-                template="plotly_white",
-                height=400,
-                showlegend=False
-            )
-            st.plotly_chart(fig_dist, use_container_width=True)
-            
-            # Summary statistics
-            st.markdown("##### 📊 Statistical Summary")
-            stats_df = pd.DataFrame({
-                'Metric': ['Mean', 'Standard Deviation', 'Coefficient of Variation', 'Probability of Positive Value'],
-                'Value': [
-                    format_currency(np.mean(simulation_results), currency_symbol),
-                    format_currency(np.std(simulation_results), currency_symbol),
-                    f"{np.std(simulation_results)/np.mean(simulation_results)*100:.1f}%",
-                    f"{len([x for x in simulation_results if x > 0])/len(simulation_results)*100:.1f}%"
-                ]
-            })
-            st.dataframe(stats_df, use_container_width=True, hide_index=True)
-    
     else:
         # Simple deterministic valuation
         st.markdown(f"""
@@ -1526,17 +1454,80 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
             terminal_scatter = terminal_scatter[:min_length]
             sample_values = sample_values[:min_length]
             marker_sizes = marker_sizes[:min_length]
+
+            with tab3:
+                if simulation_results:
+                    sim_mean = np.mean(sample_values)
+                    sim_std = np.std(sample_values)
+                    simulation_results = [x for x in sample_values if abs(x - sim_mean) <= 3 * sim_std]
+                    
+                # Calculate statistics
+                if simulation_results:
+                    percentiles = np.percentile(sample_values, [10, 25, 50, 75, 90])
+                    
+                    # Display results
+                    col1, col2, col3 = st.columns(3)
+                    with col1:
+                        st.markdown(f"""
+                        <div class="metric-card">
+                        <h4 style='color: #dc2626;'>Escenario Bajista (10th %ile)</h4>
+                        <h2 style='color: #dc2626;'>{format_currency(percentiles[0], currency_symbol)}</h2>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    with col2:
+                        st.markdown(f"""
+                        <div class="valuation-highlight">
+                        <h4>Escenario Base (Mediana)</h4>
+                        <h1 style='font-size: 2rem; margin: 0;'>{format_currency(percentiles[2], currency_symbol)}</h1>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    with col3:
+                        st.markdown(f"""
+                        <div class="metric-card">
+                        <h4 style='color: #16a34a;'>Escenario Alcista (90th %ile)</h4>
+                        <h2 style='color: #16a34a;'>{format_currency(percentiles[4], currency_symbol)}</h2>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                    # Valuation distribution chart
+                    fig_dist = go.Figure()
+                    fig_dist.add_trace(go.Histogram(
+                        x=sample_values,
+                        nbinsx=50,
+                        name='Valuation Distribution',
+                        marker_color='rgba(102, 126, 234, 0.7)',
+                        opacity=0.7
+                    ))
+                    
+                    # Add percentile lines
+                    colors = ['#dc2626', '#ea580c', '#16a34a', '#ca8a04', '#16a34a']
+                    labels = ['10th %ile (Bear)', '25th %ile', '50th %ile (Base)', '75th %ile', '90th %ile (Bull)']
+                    for i, (perc, color, label) in enumerate(zip(percentiles, colors, labels)):
+                        fig_dist.add_vline(x=perc, line_dash="dash", line_color=color, annotation_text=label, annotation_position="top")
+                        
+                    fig_dist.update_layout(
+                        title="Distribución de Monte Carlo",
+                        xaxis_title=f"Valor por acción ({currency_symbol})",
+                        yaxis_title="Frequencia",
+                        template="plotly_white",
+                        height=400,
+                        showlegend=False
+                    )
+                    st.plotly_chart(fig_dist, use_container_width=True)
+                    
+                    # Summary statistics
+                    st.markdown("##### 📊 Resumen Estadístico")
+                    stats_df = pd.DataFrame({
+                        'Metric': ['Mean', 'Standard Deviation', 'Coefficient of Variation', 'Probability of Positive Value'],
+                        'Value': [
+                            format_currency(np.mean(simulation_results), currency_symbol),
+                            format_currency(np.std(simulation_results), currency_symbol),
+                            f"{np.std(simulation_results)/np.mean(simulation_results)*100:.1f}%",
+                            f"{len([x for x in simulation_results if x > 0])/len(simulation_results)*100:.1f}%"
+                        ]
+                    })
+                    st.dataframe(stats_df, use_container_width=True, hide_index=True)
             
-            fig_dist = go.Figure()
-            fig_dist.add_trace(go.Histogram(
-                    x=sample_values,
-                    nbinsx=50,
-                    name='MonteCarlo Histogram',
-                    marker_color='rgba(102, 126, 234, 0.7)',
-                    opacity=0.7)
-            )
-            st.write(sample_values.mean())
-            st.plotly_chart(fig_dist, use_container_width=True)
             
             fig_3d_scatter = go.Figure(data=[go.Scatter3d(
                 x=wacc_scatter * 100,
