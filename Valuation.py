@@ -857,7 +857,7 @@ with tab1:
         with col_growth:
             revenue_opton = st.radio('Crecimiento de los Ingresos', ['Fijo', 'Variable'], index=0)
             avg_rev_growth = np.log(1+income.loc['Total Revenue'].sort_index().pct_change(fill_method=None)).mean()
-            st.write(f'Promedio de Crecimiento de los Ingresos: {avg_rev_growth*100:.2f}')
+            st.write(f'Promedio de Crecimiento de los Ingresos (últimos 3 años): {avg_rev_growth*100:.2f}%')
             if revenue_opton == 'Fijo':
                 revenue_growth = st.number_input(
                     "Crecimiento de los Ingresos Esperados (%)", 
