@@ -634,7 +634,6 @@ with st.sidebar:
     )
     
     st.markdown("---")
-    st.markdown("### 💹 WACC")
     
     # Enhanced risk-free rate section
     col1, col2 = st.columns([2, 1])
@@ -716,7 +715,7 @@ cost_of_equity = risk_free_rate + (levered_beta) * (market_risk_premium-risk_fre
 wacc = (equity_ratio) * cost_of_equity + (debt_ratio) * cost_of_debt * (1 - tax_rate)
 current_revenue = income.loc['Total Revenue'].iloc[0]     
 # Enhanced WACC display
-st.markdown("### 📊 Cost of Capital Analysis")
+st.markdown("### 📊 Análisis del Costo de Capital")
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
@@ -766,7 +765,7 @@ with tab1:
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.markdown("#### Historical & Projected Financial Data")
+        st.markdown("#### Información y Proyecciones")
         
         # Get industry defaults
         industry_data = INDUSTRY_BENCHMARKS[industry] if use_industry_defaults else {}
