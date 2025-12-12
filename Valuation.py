@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import plotly.express as px
-import plotly.graph_objects as go
+import plotly.graph_objects as gooctagon
 from plotly.subplots import make_subplots
 from datetime import datetime, date
 import io
@@ -1775,7 +1775,7 @@ try:
         marker=dict(
             size=15,
             color='gold',
-            symbol='octagon',
+            symbol='cross',
             line=dict(color='white', width=3),
             opacity=1.0
         ),
