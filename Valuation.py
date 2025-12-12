@@ -759,7 +759,7 @@ st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 # Main Financial Inputs
 st.markdown("### 📈 Proyecciones Financieras")
 
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Core Financials", "💰 Cash Flow", "🎯 Valuation", "📋 Report"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 Info Financiera", "💰 Flujo de Caja", "🎯 Valoración", "📋 Report"])
 
 with tab1:
     col1, col2 = st.columns([2, 1])
