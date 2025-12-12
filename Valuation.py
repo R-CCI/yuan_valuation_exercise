@@ -1616,7 +1616,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
             wacc_range_viz = np.linspace(wacc_min * 100, wacc_max * 100, 10)
             terminal_range_viz = np.linspace(terminal_min * 100, terminal_max * 100, 10)
             wacc_plane, terminal_plane = np.meshgrid(wacc_range_viz, terminal_range_viz)
-            price_plane = np.full_like(wacc_plane, current_market_price*2)
+            price_plane = np.full_like(wacc_plane, current_market_price)
             
             fig_3d_scatter.add_trace(go.Surface(
                 x=wacc_plane,
