@@ -1010,7 +1010,7 @@ with tab3:
     
     fcf_projections = []
     sim_revenue = current_revenue
-    for j in range(num_years):
+    for j in range(num_years_financial_core):
         rev_growth = revenue_growth_rates[j]
         ebitda_margin = ebitda_margins_list[j]
         sim_revenue = sim_revenue * (1 + rev_growth) if j > 0 else sim_revenue * (1 + rev_growth)  # consistent compounding
