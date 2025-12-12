@@ -1061,7 +1061,7 @@ with tab3:
     
         # ebitda margin dist
         ebitda_margin_dist = np.zeros((num_years_financial_core, num_simulations))
-        for idx, margin in enumerate(ebitda_margins_list):
+        for idx, margin in enumerate(ebitda_margins):
             ebitda_margin_dist[idx, :] = np.random.normal(margin, max(1e-6, abs(margin) * 0.15), num_simulations)
     
         simulation_results = []
