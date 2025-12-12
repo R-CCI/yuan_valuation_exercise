@@ -910,45 +910,65 @@ with tab1:
                 ) / 100
             
         with col_margin:
-            ebitda_margin_1 = st.number_input(
-                "Year 1 EBITDA Margin (%)", 
-                min_value=-20.0, 
-                max_value=60.0, 
-                value=industry_data.get("ebitda_margin", 20.0), 
-                step=0.1
-            ) / 100
-            
-            ebitda_margin_2 = st.number_input(
-                "Year 2 EBITDA Margin (%)", 
-                min_value=-20.0, 
-                max_value=60.0, 
-                value=industry_data.get("ebitda_margin", 20.0) * 1.05, 
-                step=0.1
-            ) / 100
-            
-            ebitda_margin_3 = st.number_input(
-                "Year 3 EBITDA Margin (%)", 
-                min_value=-20.0, 
-                max_value=60.0, 
-                value=industry_data.get("ebitda_margin", 20.0) * 1.1, 
-                step=0.1
-            ) / 100
-            
-            ebitda_margin_4 = st.number_input(
-                "Year 4 EBITDA Margin (%)", 
-                min_value=-20.0, 
-                max_value=60.0, 
-                value=industry_data.get("ebitda_margin", 20.0) * 1.15, 
-                step=0.1
-            ) / 100
-            
-            ebitda_margin_5 = st.number_input(
-                "Year 5 EBITDA Margin (%)", 
-                min_value=-20.0, 
-                max_value=60.0, 
-                value=industry_data.get("ebitda_margin", 20.0) * 1.2, 
-                step=0.1
-            ) / 100
+            revenues = income.loc["Total Revenue"].sort_index()
+            ebit = income.loc["Operating Income"].sort_index()
+            ebit_margin = (ebit / revenues).dropna()
+            ebit_opton = st.radio('Crecimiento de los Ingresos', ['Fijo', 'Variable'], index=0)
+            avg_ebit_margin = ebit_margin.mean()
+            st.write(f'Promedio de Margen EBIT (últimos 3 años): {avg_ebit_margin*100:.2f}%')
+            if ebit_opton == 'Fijo':
+                ebit_margin_base = st.number_input(
+                    "Margen EBIT (%)", 
+                    min_value=-50.0, 
+                    max_value=100.0, 
+                    value=industry_data.get("ebitda_margin", 20.0), 
+                    step=0.1
+                ) / 100
+                ebitda_margin_1 = revenue_growth
+                ebitda_margin_2 = revenue_growth
+                ebitda_margin_2 = revenue_growth
+                ebitda_margin_4 = revenue_growth
+                ebitda_margin_5 = revenue_growth 
+            else:
+                ebitda_margin_1 = st.number_input(
+                    "Margen EBIT Año 1 (%)", 
+                    min_value=-20.0, 
+                    max_value=60.0, 
+                    value=industry_data.get("ebitda_margin", 20.0), 
+                    step=0.1
+                ) / 100
+                
+                ebitda_margin_2 = st.number_input(
+                    "Margen EBIT Año 2 (%)", 
+                    min_value=-20.0, 
+                    max_value=60.0, 
+                    value=industry_data.get("ebitda_margin", 20.0) * 1.025, 
+                    step=0.1
+                ) / 100
+                
+                ebitda_margin_3 = st.number_input(
+                    "Margen EBIT Año 3 (%)", 
+                    min_value=-20.0, 
+                    max_value=60.0, 
+                    value=industry_data.get("ebitda_margin", 20.0) * 1.05, 
+                    step=0.1
+                ) / 100
+                
+                ebitda_margin_4 = st.number_input(
+                    "Margen EBIT Año 4 (%)", 
+                    min_value=-20.0, 
+                    max_value=60.0, 
+                    value=industry_data.get("ebitda_margin", 20.0) * 1.08, 
+                    step=0.1
+                ) / 100
+                
+                ebitda_margin_5 = st.number_input(
+                    "Margen EBIT Año 5 (%)", 
+                    min_value=-20.0, 
+                    max_value=60.0, 
+                    value=industry_data.get("ebitda_margin", 20.0) * 1.1, 
+                    step=0.1
+                ) / 100
 
     with col2:
         st.markdown("#### Key Assumptions")
