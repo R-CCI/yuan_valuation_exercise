@@ -1594,7 +1594,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                     showscale=True,
                     colorbar=dict(
                         title=dict(
-                            text=f"Value per Share<br>({currency_symbol})",
+                            text=f"Valor por acción<br>({currency_symbol})",
                             font=dict(size=14, color='white')
                         ),
                         thickness=15,
@@ -1606,10 +1606,10 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                     ),
                     line=dict(color='rgba(255,255,255,0.3)', width=0.5)  # Subtle white outline
                 ),
-                text=[f'WACC: {w*100:.2f}%<br>Terminal Growth: {tg*100:.2f}%<br>Value: {format_currency(v, currency_symbol)}' 
+                text=[f'WACC: {w*100:.2f}%<br>Crecimiento del Valor Terminal: {tg*100:.2f}%<br>Valor: {format_currency(v, currency_symbol)}' 
                       for w, tg, v in zip(wacc_scatter, terminal_scatter, sample_values)],
-                name='Monte Carlo Results',
-                hovertemplate='<b>Monte Carlo Scenario</b><br>%{text}<extra></extra>'
+                name='Monte Carlo',
+                hovertemplate='<b></b><br>%{text}<extra></extra>'
             )])
             
             # Add current market price reference plane with enhanced blue
