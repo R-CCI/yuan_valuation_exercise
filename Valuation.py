@@ -1574,16 +1574,6 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
             wacc_plane, terminal_plane = np.meshgrid(wacc_range_viz, terminal_range_viz)
             price_plane = np.full_like(wacc_plane, current_market_price)
             
-            fig_3d_scatter.add_trace(go.Surface(
-                x=wacc_plane,
-                y=terminal_plane,
-                z=price_plane,
-                colorscale=[[0, 'rgba(0,50,120,0.4)'], [1, 'rgba(0,100,200,0.6)']],  # Enhanced deeper blues
-                showscale=False,
-                opacity=0.5,  # Increased opacity
-                name='Simulaciones',
-                hovertemplate=f'Valor de la acción : {format_currency(current_market_price, currency_symbol)}<extra></extra>'
-            ))
             
             # Add base case point with enhanced styling
             fig_3d_scatter.add_trace(go.Scatter3d(
