@@ -1012,7 +1012,7 @@ with tab3:
     sim_revenue = current_revenue
     for j in range(num_years_financial_core):
         rev_growth = revenue_growth_rates[j]
-        ebitda_margin = ebitda_margins_list[j]
+        ebitda_margin = ebitda_margins[j]
         sim_revenue = sim_revenue * (1 + rev_growth) if j > 0 else sim_revenue * (1 + rev_growth)  # consistent compounding
         ebitda = sim_revenue * ebitda_margin
         depreciation = sim_revenue * depreciation_revenue_ratio
