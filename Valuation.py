@@ -797,7 +797,7 @@ with tab1:
                 ) / 100
                 revenue_growth_rates = [ebit_margin_base] * int(num_years)
             else:
-                for year in range(1, int(num_years) + 1):
+                for year in range(1, int(num_years_financial_core) + 1):
                     default_growth_factor = 1 + (year - 1) * -0.05  # 2.5% yearly increase just like your pattern
                     revenue_growth_i = st.number_input(
                     f"Margen EBIT Año {year} (%)",
@@ -826,7 +826,7 @@ with tab1:
                 ) / 100
                 margenes_ebit = [ebit_margin_base] * int(num_years)
             else:
-                for year in range(1, int(num_years) + 1):
+                for year in range(1, int(num_years_financial_core) + 1):
                     default_growth_factor = 1 + (year - 1) * 0.025  # 2.5% yearly increase just like your pattern
                     margen = st.number_input(
                     f"Margen EBIT Año {year} (%)",
@@ -882,7 +882,7 @@ with tab2:
     revenue_projections = []
     ebitda_projections = []
     fcf_projections = []
-    years = [1, 2, 3, 4, 5]
+    years = [i+1 for i in range(num_years_financial_core)]
     
     #revenue_growth_rates = [revenue_growth_1, revenue_growth_2, revenue_growth_3, revenue_growth_4, revenue_growth_5]
     #ebitda_margins = [ebitda_margin_1, ebitda_margin_2, ebitda_margin_3, ebitda_margin_4, ebitda_margin_5]
@@ -908,8 +908,8 @@ with tab2:
         revenue_projections.append(revenue)
         ebitda_projections.append(ebitda)
         fcf_projections.append(fcf)
-    pv_fcf = [fcf_projections[i]/(1+wacc)**(i+1) for  i in range(5)]
-    pv_tv = ((fcf_projections[-1]*(1+tgr))/(wacc-tgr))/((1+wacc)**5)
+    pv_fcf = [fcf_projections[i]/(1+wacc)**(i+1) for  i in range(num_years_financial_core)]
+    pv_tv = ((fcf_projections[-1]*(1+tgr))/(wacc-tgr))/((1+wacc)**num_years_financial_core)
     ev_base = sum(pv_fcf) + pv_tv
 
     equity_value = ev_base - debt_long + cash
@@ -917,7 +917,7 @@ with tab2:
     st.write(f'Valor por Acción: {value_per_share:,.2f}')
     
     # Display financial projections table
-    st.markdown("#### 📊 5-Year Financial Projections")
+    st.markdown(f"#### 📊 Proyecciones a {num_years_financial_core} años")
     
     projections_df = pd.DataFrame({
         'Año': years,
