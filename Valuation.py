@@ -1535,6 +1535,7 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                     marker_color='rgba(102, 126, 234, 0.7)',
                     opacity=0.7)
             )
+            st.write(sample_values.mean())
             st.plotly_chart(fig_dist, use_container_width=True)
             
             fig_3d_scatter = go.Figure(data=[go.Scatter3d(
