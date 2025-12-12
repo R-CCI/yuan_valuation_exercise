@@ -1197,42 +1197,7 @@ with tab4:
     
 
     # Risk assessment
-    st.markdown(f"""
-    <div class="risk-analysis">
-        <h3 style='margin-top: 0;'>⚠️ Risk Assessment: {risk_assessment}</h3>
-        <div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;'>
-            <div>
-                <strong>Market Risk (Beta):</strong> {beta:.2f}<br>
-                <small>{"High" if beta > 1.2 else "Moderate" if beta > 0.8 else "Low"} market sensitivity</small>
-            </div>
-            <div>
-                <strong>Financial Risk:</strong> {debt_ratio:.0f}% Debt<br>
-                <small>{"High" if debt_ratio > 50 else "Moderate" if debt_ratio > 30 else "Low"} leverage</small>
-            </div>
-            <div>
-                <strong>Industry Risk:</strong> {industry}<br>
-                <small>{"Cyclical" if industry in ["Technology", "Energy"] else "Defensive"} sector characteristics</small>
-            </div>
-            <div>
-                <strong>Cash Flow Volatility:</strong> {fcf_volatility*100:.1f}%<br>
-                <small>{"High" if fcf_volatility > 0.3 else "Moderate" if fcf_volatility > 0.15 else "Low"} variability</small>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-   # Generate and display investment thesis
-    valuation_results = {
-        'bear': format_currency(percentiles[0], currency_symbol) if run_monte_carlo and simulation_results else format_currency(value_per_share * 0.8, currency_symbol),
-        'base': format_currency(percentiles[2], currency_symbol) if run_monte_carlo and simulation_results else format_currency(value_per_share, currency_symbol),
-        'bull': format_currency(percentiles[4], currency_symbol) if run_monte_carlo and simulation_results else format_currency(value_per_share * 1.2, currency_symbol),
-        'weighted_avg': format_currency(np.mean(simulation_results), currency_symbol) if run_monte_carlo and simulation_results else format_currency(value_per_share, currency_symbol)
-    }
-    
-    # Generate comprehensive investment thesis
-    investment_thesis = generate_investment_thesis(
-        ticker_symbol, industry, ratios, valuation_results, recommendation
-    )
+
     
     # Display investment thesis in expandable section
     with st.expander("📄 Detailed Investment Thesis & Valuation Report", expanded=False):
