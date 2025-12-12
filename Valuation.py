@@ -23,6 +23,161 @@ try:
 except st.errors.StreamlitAPIException:
     pass
 
+def _transpose_and_parse(df):
+    # yfinance returns DataFrame with columns = periods; transpose -> rows = periods
+    if df is None or df.empty:
+        return pd.DataFrame()
+    df_t = df.T.copy()
+    # ensure index is datetime if possible
+    try:
+        df_t.index = pd.to_datetime(df_t.index)
+    except Exception:
+        pass
+    return df_t
+
+def compute_ttm_from_quarters(q_df, metric_cols=None, annualize_partial=True):
+    """
+    q_df: DataFrame of quarterly data (rows = quarter end dates, columns = metrics)
+    metric_cols: iterable of column names to compute TTM for (None => all columns)
+    annualize_partial: if <4 quarters available, scale the sum by 4/n_quarters
+    Returns: DataFrame with index = "TTM as of <last quarter date>" and columns = metrics
+    """
+    if q_df is None or q_df.empty:
+        return pd.DataFrame()
+    q_df_sorted = q_df.sort_index()
+    # choose last up to 4 quarters
+    available = q_df_sorted.shape[0]
+    n = min(4, available)
+    last_quarters = q_df_sorted.iloc[-n:]
+    if metric_cols is None:
+        metric_cols = last_quarters.columns
+    ttm = last_quarters[metric_cols].sum(axis=0)
+    annualized_partial = False
+    if n < 4 and annualize_partial and n > 0:
+        ttm = ttm * (4.0 / n)
+        annualized_partial = True
+    # produce DataFrame row label "TTM as of <last_quarter_date>"
+    last_date = last_quarters.index[-1]
+    idx = pd.to_datetime(last_date)
+    result = pd.DataFrame([ttm.values], index=[idx], columns=metric_cols)
+    result.attrs['annualized_partial'] = annualized_partial
+    return result
+
+def get_financials_with_annualized_ttm(ticker_symbol: str,
+                                      statements=('income', 'cashflow', 'balance'),
+                                      annualize_partial=True):
+    """
+    Returns a dict of DataFrames keyed by statement name.
+    Each DataFrame has:
+      - rows = annual periods (and possibly a TTM row for the latest),
+      - columns = financial items,
+      - columns/flags: we add 'is_trailing' (row boolean index column-like), and
+                      'source' (annual / ttm_quarters / ttm_annualized_partial)
+    Notes:
+      - Balance sheet is point-in-time: no TTM sum; if annual missing, we use most recent quarter and flag it.
+    """
+    ticker_obj = yf.Ticker(ticker_symbol)
+    ticker_info = ticker_obj.info         
+    #price = ticker_obj.info['regularMarketPreviousClose']
+    out = {}
+    # fetch all relevant raw dfs from yfinance
+    raw_income_annual = _transpose_and_parse(ticker_obj.financials)       # annual income
+    raw_income_quarterly = _transpose_and_parse(ticker_obj.quarterly_financials)
+    raw_cash_annual = _transpose_and_parse(ticker_obj.cashflow)          # annual cashflow
+    raw_cash_quarterly = _transpose_and_parse(ticker_obj.quarterly_cashflow)
+    raw_bs_annual = _transpose_and_parse(ticker_obj.balance_sheet)       # annual balance
+    raw_bs_quarterly = _transpose_and_parse(ticker_obj.quarterly_balance_sheet)
+
+    # --- INCOME ---
+    if 'income' in statements:
+        income_annual = raw_income_annual.copy()
+        income_q = raw_income_quarterly.copy()
+        df_income = income_annual.copy()
+        # add a TTM row computed from quarters
+        ttm_income = compute_ttm_from_quarters(income_q, metric_cols=income_q.columns, annualize_partial=annualize_partial)
+        if not ttm_income.empty:
+            # label row index so later merging is easy; keep both annual rows and TTM row
+            # avoid duplicate index: if same date as an annual row, it might overwrite; we'll append and then sort/unique
+            ttm_income.rename(index={ttm_income.index[0]: pd.to_datetime(ttm_income.index[0])}, inplace=True)
+            # mark source via a MultiIndex column or with attributes - we will append a column later
+            # Append TTM row
+            combined = pd.concat([df_income, ttm_income], axis=0, sort=False)
+        else:
+            combined = df_income
+        # sort index descending (latest first)
+        combined = combined.sort_index(ascending=False)
+        # add flags: is_trailing = index == most recent index
+        if not combined.empty:
+            most_recent_idx = combined.index[0]
+            combined = combined.copy()
+            combined['is_trailing'] = [idx == most_recent_idx for idx in combined.index]
+            # set source column
+            def detect_source(idx):
+                # if idx equals any annual row originally in income_annual -> 'annual'
+                if idx in income_annual.index:
+                    return 'annual'
+                elif idx in ttm_income.index:
+                    return 'ttm_quarters_annualized' if getattr(ttm_income, 'attrs', {}).get('annualized_partial', False) else 'ttm_quarters'
+                else:
+                    return 'derived'
+            combined['source'] = [detect_source(idx) for idx in combined.index]
+        out['income'] = combined[[c for c in combined.columns if c not in ['is_trailing', 'source']]]
+
+    # --- CASHFLOW ---
+    if 'cashflow' in statements:
+        cash_annual = raw_cash_annual.copy()
+        cash_q = raw_cash_quarterly.copy()
+        df_cash = cash_annual.copy()
+        ttm_cash = compute_ttm_from_quarters(cash_q, metric_cols=cash_q.columns, annualize_partial=annualize_partial)
+        if not ttm_cash.empty:
+            combined = pd.concat([df_cash, ttm_cash], axis=0, sort=False)
+        else:
+            combined = df_cash
+        combined = combined.sort_index(ascending=False)
+        if not combined.empty:
+            most_recent_idx = combined.index[0]
+            combined = combined.copy()
+            combined['is_trailing'] = [idx == most_recent_idx for idx in combined.index]
+            def detect_source(idx):
+                if idx in cash_annual.index:
+                    return 'annual'
+                elif idx in ttm_cash.index:
+                    return 'ttm_quarters_annualized' if getattr(ttm_cash, 'attrs', {}).get('annualized_partial', False) else 'ttm_quarters'
+                else:
+                    return 'derived'
+            combined['source'] = [detect_source(idx) for idx in combined.index]
+        out['cashflow'] = combined[[c for c in combined.columns if c not in ['is_trailing', 'source']]]
+
+    # --- BALANCE SHEET ---
+    if 'balance' in statements or 'balance_sheet' in statements:
+        # naming flexibility
+        bs_annual = raw_bs_annual.copy()
+        bs_q = raw_bs_quarterly.copy()
+        if not bs_annual.empty:
+            combined = bs_annual.copy()
+            source_map = {idx: 'annual' for idx in combined.index}
+        else:
+            # if no annual, use the most recent quarter (point-in-time)
+            if not bs_q.empty:
+                latest_q = bs_q.sort_index(ascending=False).iloc[[0]]
+                combined = latest_q.copy()
+                source_map = {combined.index[0]: 'quarter (used as proxy)'}
+            else:
+                combined = pd.DataFrame()
+                source_map = {}
+        if not combined.empty:
+            combined = combined.sort_index(ascending=False)
+            most_recent_idx = combined.index[0]
+            combined = combined.copy()
+            combined['is_trailing'] = [idx == most_recent_idx for idx in combined.index]
+            combined['source'] = [source_map.get(idx, 'annual') for idx in combined.index]
+            #mark that balance sheet rows are not annualized
+            combined['annualized_partial'] = False
+        out['balance'] = combined[[c for c in combined.columns if c not in ['is_trailing', 'source', 'annualized_partial']]]
+
+    return out, ticker_info
+
+
 # Enhanced Industry benchmarks with more comprehensive data
 INDUSTRY_BENCHMARKS = {
     "Technology": {
@@ -507,23 +662,21 @@ with st.sidebar:
     )
     
     st.markdown("---")
-    st.markdown("### 💹 WACC Calculation")
+    st.markdown("### 💹 WACC")
     
     # Enhanced risk-free rate section
     col1, col2 = st.columns([2, 1])
     with col1:
-        if st.button("🔄 Fetch Live Risk-Free Rate", type="primary"):
-            with st.spinner(f"Fetching 10Y bond yield for {country}..."):
-                scraped_rate = get_risk_free_rate(country)
-                st.session_state.risk_free_rate = scraped_rate
-                st.success(f"✅ Updated: {scraped_rate:.2f}%")
+    scraped_rate = get_risk_free_rate(country)
+    st.session_state.risk_free_rate = scraped_rate
+    st.success(f"✅ Rendimiento US Bond 10Y: {scraped_rate:.2f}%")
     
     # Initialize session state
     if 'risk_free_rate' not in st.session_state:
         st.session_state.risk_free_rate = get_risk_free_rate(country)
     
     risk_free_rate = st.number_input(
-        "Risk-Free Rate (%)", 
+        "Tasa Libre de Riesgo (%)", 
         min_value=0.0, 
         max_value=20.0, 
         value=float(st.session_state.risk_free_rate), 
@@ -536,48 +689,50 @@ with st.sidebar:
     default_beta = industry_data["beta"] if use_industry_defaults else 1.2
     
     beta = st.number_input(
-        f"Beta (Industry Avg: {industry_data['beta']:.2f})", 
+        f"Beta (Promedio Industria: {industry_data['beta']:.2f})", 
         min_value=0.0, 
         max_value=3.0, 
-        value=float(default_beta), 
+        value=1.49, 
         step=0.01,
         help="Systematic risk relative to market portfolio"
     )
     
     market_risk_premium = st.number_input(
-        "Equity Risk Premium (%)", 
+        "Retorno del mercado (%)", 
         min_value=0.0, 
-        max_value=15.0, 
-        value=6.0, 
+        max_value=20.0, 
+        value=14.53, 
         step=0.1,
-        help="Expected market return above risk-free rate"
+        help="Retorno promedio del mercado"
     ) / 100
     
     cost_of_debt = st.number_input(
-        "Pre-tax Cost of Debt (%)", 
+        "Costo de la deuda antes de impuestos (%)", 
         min_value=0.0, 
         max_value=25.0, 
-        value=8.0, 
+        value=4.98, 
         step=0.1,
-        help="Weighted average interest rate on debt"
+        help="Retorno de los bonos corporativos"
     ) / 100
     
     tax_rate = st.number_input(
-        "Marginal Tax Rate (%)", 
+        "Tax Rate (%)", 
         min_value=0.0, 
-        max_value=50.0, 
-        value=25.0, 
+        max_value=40.0, 
+        value=21.0, 
         step=0.5,
-        help="Effective corporate tax rate"
     ) / 100
-    
-    equity_ratio = st.slider(
-        "Target Equity Weight (%)", 
-        min_value=10, 
-        max_value=100, 
-        value=70,
-        help="Market value weight of equity in capital structure"
-    )
+
+    tgr = st.number_input("Crecimiento de la Perpetuidad (%)", value=5.0, step=0.5) / 100
+
+    res, ticker_info = get_financials_with_annualized_ttm(ticker_symbol, statements=('income','cashflow','balance'), annualize_partial=True)
+    sharesOutstanding = (info['sharesOutstanding'])
+    last_price = info['regularMarketPreviousClose']
+    total_equity = last_price * sharesOutstanding
+    balance, income, cashflow = res['balance'].T, res['income'].T , res['cashflow'].T 
+    debt_long = balance.loc['Long Term Debt And Capital Lease Obligation'].iloc[0]
+    st.write(f'Deuda: {debt_long:,.2f}')
+    st.write(f'Equity: {total_equity:,.2f}')
 
 # Calculate enhanced metrics
 debt_ratio = 100 - equity_ratio
