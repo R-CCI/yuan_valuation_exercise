@@ -1383,7 +1383,7 @@ with tab5:
     #    'Adjusted BV per Share': adjusted_book_value_per_share
     #})
     #print("\nResumen Ajustado:")
-    $print(df_adjusted)
+    #print(df_adjusted)
     
     #current_market_price = st.number_input(
     #    f"Current Market Price ({currency_symbol})", 
