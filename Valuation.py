@@ -1235,7 +1235,7 @@ class StockStrategyAgent:
           template=cleaner_prompt)
           query_chain = LLMChain(llm=llm, prompt=mm_template)
           result = query_chain.run({"ticker": ticker, "dcf_price":dcf_price, "last_price": last_price, })
-        return result
+          return result
     except Exception as e:
         return f"Error due to {e}"
 
