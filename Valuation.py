@@ -1181,7 +1181,7 @@ class StockStrategyAgent:
     """
     try:
       with st.spinner("Creando estartegias..."):
-          llm = ChatOpenAI(temperature=0.5) #api_key=OPENAI_API_KEY
+          llm = ChatOpenAI(model="gpt-5", temperature=1)
           output = pd.DataFrame()
           cleaner_prompt = f"""
 Eres un analista financiero senior especializado en valoración fundamental, mercados de capitales y estrategias con derivados, con experiencia en comunicación clara para clientes no técnicos.
