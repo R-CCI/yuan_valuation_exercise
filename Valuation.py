@@ -760,7 +760,7 @@ st.markdown('<hr class="section-divider">', unsafe_allow_html=True)
 # Main Financial Inputs
 st.markdown("### 📈 Proyecciones Financieras")
 
-tab1, tab2, tab3, tab4 = st.tabs(["📊 Info Financiera", "💰 Flujo de Caja", "🎯 Valoración", "📋 Estrategias - Agente de IA"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Info Financiera", "💰 Flujo de Caja", "🎯 Valoración", "📋 Estrategias - Agente de IA", "Otros Metodos de Valoración"])
 
 with tab1:
     col1, col2 = st.columns([2, 1])
@@ -1342,7 +1342,7 @@ Aclarar que todas las estrategias dependen de supuestos y escenarios.       """
 
 
 with tab4:
-    st.markdown("### 📋 Executive Investment Report")
+    st.markdown("### 📋 Estrategias")
     
     # Calculate comprehensive financial ratios
     ratios = calculate_financial_ratios(
@@ -1361,6 +1361,30 @@ with tab4:
     current_market_price = last_price 
     output = StockStrategyAgent.strategy_creator(value_per_share_base, last_price, ticker_symbol)
     st.write(output)
+with tab5: 
+    adjusted_assets = balance.loc['Total Assets'].iloc[0] - balance.loc['Goodwill And Other Intangible Assets'].iloc[0]
+    adjusted_liabilities = balance_sheet['Total Liabilities Net Minority Interest'].iloc[0]  # se pueden agregar ajustes extra si hay pasivos contingentes
+    
+    # Valor contable ajustado = activos ajustados - pasivos ajustados
+    adjusted_book_value = adjusted_assets - adjusted_liabilities
+    
+    adjusted_book_value_per_share = adjusted_book_value / sharesOutstanding
+    
+    # Mostrar resultados
+    st.write(f'Valor en Libro Ajustado:: {adjusted_book_value:,.2f}')
+    st.write(f'Valor en Libro Ajustado por Acción:: {adjusted_book_value_per_share:,.2f}')
+    print(adjusted_book_value_per_share)
+    
+    # Opcional: crear un DataFrame para mostrar evolución en los últimos trimestres
+    #df_adjusted = pd.DataFrame({
+    #    'Adjusted Assets': adjusted_assets,
+    #    'Adjusted Liabilities': adjusted_liabilities,
+    #    'Adjusted Book Value': adjusted_book_value,
+    #    'Adjusted BV per Share': adjusted_book_value_per_share
+    #})
+    #print("\nResumen Ajustado:")
+    $print(df_adjusted)
+    
     #current_market_price = st.number_input(
     #    f"Current Market Price ({currency_symbol})", 
     #    min_value=0.1, 
