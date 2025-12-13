@@ -914,6 +914,10 @@ with tab2:
 
     equity_value = ev_base - debt_long + cash
     value_per_share_base = equity_value / sharesOutstanding
+    st.write(f'EV: {ev_base:,.2f}')
+    st.write(f'Equity Value: {equity_value:,.2f}')
+    st.write(f'Deuda: {debt_long:,.2f}')
+    st.write(f'Efectivo: {cash:,.2f}')
     st.write(f'Valor por Acción: {value_per_share_base:,.2f}')
     
     # Display financial projections table
