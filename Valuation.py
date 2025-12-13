@@ -1173,6 +1173,73 @@ with tab3:
         )
         st.plotly_chart(fig_sens, use_container_width=True)
 
+class StockStrategyAgent:
+  """A class that provides various functions to fetch stock data"""
+  @staticmethod
+  def strategy_creator(dcf_price, last_price, ticker):
+    """
+    """
+    try:
+      with st.spinner("Creando estartegias...")
+          llm = ChatOpenAI(temperature=0.5) #api_key=OPENAI_API_KEY
+          output = pd.DataFrame()
+          cleaner_prompt = f"""
+          Eres un analista financiero senior especializado en valoración fundamental y estrategia de inversión.
+          Tu objetivo es analizar la empresa {ticker} combinando:
+          El precio actual de mercado de la acción.
+          El valor intrínseco estimado mediante un modelo DCF (provisto como input).
+          Las expectativas de crecimiento de largo plazo del mercado y del sector, basadas en información pública y reciente disponible en internet.
+          Los riesgos clave (operativos, financieros, estratégicos y de mercado) que podrían afectar la materialización de dicho valor.
+          Instrucciones específicas
+          Evalúa la diferencia entre precio de mercado vs. valor DCF, e interpreta qué expectativas ya están incorporadas en el precio. 
+          Identifica los principales motores de crecimiento estructural y los riesgos que podrían limitar o retrasar ese crecimiento. 
+          Distingue claramente entre crecimiento cíclico y crecimiento estructural.
+          Evita lenguaje promocional; mantén un tono analítico, objetivo y profesional, pero sencillo para el cliente. Dependiendo del perfil del cliente puedes usar estategias combinadas y derivados.
+          Si existen incertidumbres relevantes, explícitalas claramente.
+          
+          Resultado esperado
+          Entrega el análisis estructurado en las siguientes secciones:
+          Resumen ejecutivo
+          Conclusión clara sobre si la acción parece sobrevalorada, razonablemente valorada o infravalorada bajo los supuestos actuales.
+          Precio de mercado vs. valor intrínseco (DCF)
+          Comparación cuantitativa.
+          Interpretación de la brecha (o ausencia de ella).
+          Expectativas de largo plazo del mercado
+          Narrativas dominantes (crecimiento, disrupción, ventajas competitivas).
+          Supuestos implícitos en la valoración de mercado.
+          Riesgos e incertidumbres clave
+          Riesgos que podrían afectar flujos de caja, márgenes o tasas de descuento.
+          Riesgos de ejecución, regulación, competencia o ciclo económico.
+          Estrategias de inversión por perfil de riesgo
+          Cliente conservador (bajo riesgo):
+          Estrategia enfocada en preservación de capital.
+          Horizonte temporal y condiciones de entrada.
+          Cliente de riesgo medio:
+          Estrategia balanceada entre crecimiento y valoración.
+          Manejo de volatilidad.
+          Cliente de alto riesgo:
+          Estrategia oportunista basada en escenarios y asimetría de retornos.
+          Supuestos clave que deben cumplirse.
+          
+          Formato
+          Redacción clara y concisa.
+          Uso de viñetas solo cuando agreguen claridad.
+          No incluir recomendaciones personalizadas ni lenguaje de asesoría financiera regulada.
+          Enfatizar que el análisis depende de supuestos y escenarios.
+    
+          La empresa es {ticker}. El precio del DCF es {dcf_price} y el precio del mercado es {last_price}
+          """
+    
+          mm_template = PromptTemplate(
+          input_variables=["ticker", "dcf_price", "last_price"],
+          template=cleaner_prompt)
+          query_chain = LLMChain(llm=llm, prompt=mm_template)
+          result = query_chain.run({"ticker": ticker, "dcf_price":dcf_price, "last_price": last_price, })
+        return result
+    except Exception as e:
+        return f"Error due to {e}"
+
+
 with tab4:
     st.markdown("### 📋 Executive Investment Report")
     
@@ -1190,7 +1257,10 @@ with tab4:
     risk_assessment, risk_color = determine_risk_level(beta, industry, debt_ratio, fcf_volatility)
     
     # Investment recommendation logic
-    current_market_price = last_price #current_market_price = st.number_input(
+    current_market_price = last_price 
+    output = StockStrategyAgent.strategy_creator(value_per_share_base, last_price, ticker_symbol)
+    st.write(output)
+    #current_market_price = st.number_input(
     #    f"Current Market Price ({currency_symbol})", 
     #    min_value=0.1, 
     #    value=float(value_per_share * 0.9), 
