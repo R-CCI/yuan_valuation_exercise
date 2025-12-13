@@ -722,7 +722,7 @@ col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.markdown(f"""
     <div class="metric-card">
-        <h4 style='margin: 0 0 0.5rem 0; color: #374151;'>Risk-Free Rate</h4>
+        <h4 style='margin: 0 0 0.5rem 0; color: #374151;'>Tasa Libre de Riesgo</h4>
         <h2 style='margin: 0; color: #1f2937;'>{risk_free_rate * 100:.2f}%</h2>
         <p style='margin: 0.5rem 0 0 0; color: #6b7280; font-size: 0.875rem;'>10Y Government Bond</p>
     </div>
@@ -731,18 +731,18 @@ with col1:
 with col2:
     st.markdown(f"""
     <div class="metric-card">
-        <h4 style='margin: 0 0 0.5rem 0; color: #374151;'>Cost of Equity</h4>
+        <h4 style='margin: 0 0 0.5rem 0; color: #374151;'>Costo del Equity</h4>
         <h2 style='margin: 0; color: #1f2937;'>{cost_of_equity * 100:.2f}%</h2>
-        <p style='margin: 0.5rem 0 0 0; color: #6b7280; font-size: 0.875rem;'>CAPM Model</p>
+        <p style='margin: 0.5rem 0 0 0; color: #6b7280; font-size: 0.875rem;'>CAPM</p>
     </div>
     """, unsafe_allow_html=True)
 
 with col3:
     st.markdown(f"""
     <div class="metric-card">
-        <h4 style='margin: 0 0 0.5rem 0; color: #374151;'>After-tax Cost of Debt</h4>
+        <h4 style='margin: 0 0 0.5rem 0; color: #374151;'>Costo de la deuda despues de impuestos</h4>
         <h2 style='margin: 0; color: #1f2937;'>{cost_of_debt * (1-tax_rate) * 100:.2f}%</h2>
-        <p style='margin: 0.5rem 0 0 0; color: #6b7280; font-size: 0.875rem;'>Tax-Adjusted</p>
+        <p style='margin: 0.5rem 0 0 0; color: #6b7280; font-size: 0.875rem;'></p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -751,7 +751,7 @@ with col4:
     <div class="valuation-highlight">
         <h4 style='margin: 0 0 0.5rem 0; color: white;'>WACC</h4>
         <h1 style='margin: 0; color: white; font-size: 2rem;'>{wacc * 100:.2f}%</h1>
-        <p style='margin: 0.5rem 0 0 0; color: rgba(255,255,255,0.8); font-size: 0.875rem;'>Discount Rate</p>
+        <p style='margin: 0.5rem 0 0 0; color: rgba(255,255,255,0.8); font-size: 0.875rem;'>Tasa de Descuento</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -961,7 +961,7 @@ with tab2:
     
     fig_cf.update_layout(
         title="Evolución Financiera",
-        xaxis_title="Projection Period",
+        xaxis_title="Año",
         yaxis_title=f"Monto",
         template="plotly_white",
         height=500,
@@ -1500,7 +1500,7 @@ try:
         showscale=True,
         colorbar=dict(
             title=dict(
-                text=f"Value per Share<br>({currency_symbol})",
+                text=f"Valor por acción<br>({currency_symbol})",
                 font=dict(size=14, color='white')
             ),
             thickness=20,
