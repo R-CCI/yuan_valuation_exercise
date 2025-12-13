@@ -681,7 +681,7 @@ with st.sidebar:
         "Costo de la deuda antes de impuestos (%)", 
         min_value=0.0, 
         max_value=25.0, 
-        value=4.98, 
+        value=5.05, 
         step=0.1,
         help="Retorno de los bonos corporativos"
     ) / 100
@@ -694,7 +694,7 @@ with st.sidebar:
         step=0.5,
     ) / 100
 
-    tgr = st.number_input("Crecimiento de la Perpetuidad (%)", value=10.0, step=0.5) / 100
+    tgr = st.number_input("Crecimiento de la Perpetuidad (%)", value=6.0, step=0.5) / 100
 
     res, sharesOutstanding, last_price = get_financials_with_annualized_ttm(ticker_symbol, statements=('income','cashflow','balance'), annualize_partial=True)
     #sharesOutstanding = (info['sharesOutstanding'])
@@ -784,7 +784,7 @@ with tab1:
         
         col_growth, col_margin = st.columns(2)
         with col_growth:
-            revenue_opton = st.radio('Crecimiento de los Ingresos', ['Fijo', 'Variable'], index=0)
+            revenue_opton = st.radio('Crecimiento de los Ingresos', ['Fijo', 'Variable'], index=1)
             avg_rev_growth = np.log(1+income.loc['Total Revenue'].sort_index().pct_change(fill_method=None)).mean()
             st.write(f'Promedio de Crecimiento de los Ingresos (últimos 3 años): {avg_rev_growth*100:.2f}%')
             if revenue_opton == 'Fijo':
