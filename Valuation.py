@@ -1180,7 +1180,7 @@ class StockStrategyAgent:
     """
     """
     try:
-      with st.spinner("Creando estartegias...")
+      with st.spinner("Creando estartegias..."):
           llm = ChatOpenAI(temperature=0.5) #api_key=OPENAI_API_KEY
           output = pd.DataFrame()
           cleaner_prompt = f"""
