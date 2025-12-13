@@ -1293,8 +1293,8 @@ if run_monte_carlo and simulation_results and len(simulation_results) > 100:
                     ))
                     
                     # Add percentile lines
-                    colors = ['#dc2626', '#ea580c', '#16a34a', '#ca8a04', '#16a34a']
-                    labels = ['10th %ile (Bear)', '25th %ile', '50th %ile (Base)', '75th %ile', '90th %ile (Bull)']
+                    colors = ['#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#16a34a']
+                    labels = ['10%', '25%', '50% (Mediana)', '75%', '90%']
                     for i, (perc, color, label) in enumerate(zip(percentiles, colors, labels)):
                         fig_dist.add_vline(x=perc, line_dash="dash", line_color=color, annotation_text=label, annotation_position="top")
                         
