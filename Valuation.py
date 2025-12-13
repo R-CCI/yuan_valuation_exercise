@@ -1363,7 +1363,7 @@ with tab4:
     st.write(output)
 with tab5: 
     adjusted_assets = balance.loc['Total Assets'].iloc[0] - balance.loc['Goodwill And Other Intangible Assets'].iloc[0]
-    adjusted_liabilities = balance_sheet['Total Liabilities Net Minority Interest'].iloc[0]  # se pueden agregar ajustes extra si hay pasivos contingentes
+    adjusted_liabilities = balance['Total Liabilities Net Minority Interest'].iloc[0]  # se pueden agregar ajustes extra si hay pasivos contingentes
     
     # Valor contable ajustado = activos ajustados - pasivos ajustados
     adjusted_book_value = adjusted_assets - adjusted_liabilities
