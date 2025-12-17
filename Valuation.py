@@ -1708,7 +1708,14 @@ try:
             bordercolor='white',
             borderwidth=2,
             tickfont=dict(color='white', size=12)
-        ), text=[f'<b>Escenario Base</b><br>WACC: {wacc_mesh * 100:.2f}%<br>Crecimiento del Valor Terminal: {terminal_mesh * 100:.2f}%<br>Value: {format_currency(surface_values, currency_symbol)}'],
+        ),
+        hovertemplate=(
+        "<b>Escenario Base</b><br>"
+        "WACC: %{x:.2f}%<br>"
+        "Crecimiento Valor Terminal: %{y:.2f}%<br>"
+        f"Valor: {currency_symbol} %{z:,.2f}"
+        "<extra></extra>"
+    )
     ))
 
     # Add glowing base case point
