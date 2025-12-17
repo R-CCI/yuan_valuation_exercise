@@ -768,7 +768,7 @@ with tab1:
     with col1:
         st.markdown("#### Información y Proyecciones")
         num_years_financial_core = st.number_input(
-        "Número de años para proyectar el Margen EBIT", 
+        "Número de años para proyectar", 
         min_value=1, 
         max_value=20, 
         value=10,
