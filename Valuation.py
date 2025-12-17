@@ -1708,7 +1708,7 @@ try:
             bordercolor='white',
             borderwidth=2,
             tickfont=dict(color='white', size=12)
-        )
+        ), text=[f'<b>Escenario Base</b><br>WACC: {wacc_mesh * 100:.2f}%<br>Crecimiento del Valor Terminal: {terminal_mesh * 100:.2f}%<br>Value: {format_currency(surface_values, currency_symbol)}'],
     ))
 
     # Add glowing base case point
